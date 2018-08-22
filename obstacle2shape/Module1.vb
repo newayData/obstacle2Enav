@@ -121,6 +121,7 @@ Module Module1
             ffg.DataRow("name") = descr
             ffg.DataRow("height") = height
             ffg.DataRow("lighted") = lighted
+
             ffg.DataRow.AcceptChanges()
 
             Dim res = makePolygonConcarve(dpfs.ToArray)
@@ -135,12 +136,15 @@ Module Module1
 
 
 
-            Dim ffa As IFeature = fs.AddFeature(New Polygon(listCl))
+            If listCl.Count > 1 Then
+                Dim ffa As IFeature = fs.AddFeature(New Polygon(listCl))
 
-            ffa.DataRow("name") = descr
-            ffa.DataRow("height") = height
-            ffa.DataRow("lighted") = lighted
-            ffa.DataRow.AcceptChanges()
+                ffa.DataRow("name") = descr
+                ffa.DataRow("height") = height
+                ffa.DataRow("lighted") = lighted
+                ffa.DataRow.AcceptChanges()
+            End If
+
         Next
 
         fsx.SaveAs("out\groupedPoint.shp", True)
@@ -166,6 +170,7 @@ Module Module1
             ffa.DataRow("type") = cli.type
             ffa.DataRow("description") = cli.description
             ffa.DataRow("markingText") = cli.markingText
+            ffa.DataRow("origin") = cli.origin
             ffa.DataRow("lighted") = cli.lighted
             ffa.DataRow("height") = "max " & cli.height & cli.heightUnit
             ffa.DataRow.AcceptChanges()
@@ -200,6 +205,7 @@ Module Module1
             ffa.DataRow("markingText") = cli.markingText
             ffa.DataRow("height") = cli.height & cli.heightUnit
             ffa.DataRow("lighted") = cli.lighted
+
             ffa.DataRow.AcceptChanges()
         Next
 
@@ -217,6 +223,7 @@ Module Module1
                 ffa.DataRow("markingText") = cli.markingText
                 ffa.DataRow("height") = cli.height & cli.heightUnit
                 ffa.DataRow("lighted") = cli.lighted
+
                 ffa.DataRow.AcceptChanges()
 
             Next
@@ -260,7 +267,7 @@ Module Module1
 
                 If cli.height > maxHei Then maxHei = cli.height
                 If cli.lighted Then lighte = True
-                If cli.type = "MAST" Then
+                If cli.type.ToLower = "MAST".ToLower Then
 
 
                     ' make pylon symbol
@@ -300,6 +307,7 @@ Module Module1
                 ffa.DataRow("markingText") = clf(0).markingText
                 ffa.DataRow("lighted") = lighte
                 ffa.DataRow("height") = "max " & maxHei & clf(0).heightUnit
+                ffa.DataRow("origin") = clf(0).origin
                 ffa.DataRow.AcceptChanges()
             End If
 
@@ -333,10 +341,12 @@ Module Module1
         ' pylon
         file.WriteLine("FeatureClass=linePylon*,321")
 
-        ' line
-        file.WriteLine("FeatureClass=allLine*,type=MAST,334") 'powerline
-        file.WriteLine("FeatureClass=allLine*,type=BUILDING,335") ' Building (Aerial way so whatsoever)
-
+        ' line trusted source
+        file.WriteLine("FeatureClass=allLine*,origin=bazl,334") 'powerline trusted
+        file.WriteLine("FeatureClass=allLine*,origin=openstreetmap,335") ' Building (Aerial way so whatsoever)
+        file.WriteLine("FeatureClass=allLine*,origin=cis_oeamtc,335") ' Building (Aerial way so whatsoever)
+        file.WriteLine("FeatureClass=allLine*,origin=Kabeldaten Uri,335") ' Building (Aerial way so whatsoever)
+        file.WriteLine("FeatureClass=allLine*,origin=Forstamt Tessin,335") ' Building (Aerial way so whatsoever)
 
         file.WriteLine("[Label]")
         file.WriteLine("FeatureClass=allPoints*,height")
@@ -434,13 +444,13 @@ up:
                                         ' Console.WriteLine("group element: " & type)
 
                                         Dim el As New shapElementStruct
-                                        el.name = item.name.ToUpper
+                                        el.name = item.name
                                         el.id = id
 
-                                        el.origin = item.origin.ToUpper
-                                        el.type = item.type.ToUpper
+                                        el.origin = item.origin.ToLower
+                                        el.type = item.type.ToLower
                                         el.description = item.groupDescription
-                                        el.markingText = item.markingDescription.ToUpper
+                                        el.markingText = item.markingDescription.ToLower
                                         el.validUntil = item.validUntil
                                         el.lat = item.latitude
                                         el.lon = item.longitude
@@ -455,12 +465,12 @@ up:
 
                                     ' all others
                                     Dim el2 As New shapElementStruct
-                                    el2.name = item2.name.ToUpper
+                                    el2.name = item2.name
                                     el2.id = id
 
-                                    el2.origin = item2.origin.ToUpper
-                                    el2.type = item2.type.ToUpper
-                                    el2.markingText = item2.markingDescription.ToUpper
+                                    el2.origin = item2.origin
+                                    el2.type = item2.type
+                                    el2.markingText = item2.markingDescription
                                     el2.validUntil = item2.validUntil
                                     el2.lat = item2.latitude
                                     el2.lon = item2.longitude
@@ -503,12 +513,12 @@ up:
 
                             ' this is a single obstacle without group
                             Dim el2 As New shapElementStruct
-                            el2.name = item.name.ToUpper
+                            el2.name = item.name
                             el2.id = id
 
-                            el2.origin = item.origin.ToUpper
-                            el2.type = item.type.ToUpper
-                            el2.markingText = item.markingDescription.ToUpper
+                            el2.origin = item.origin
+                            el2.type = item.type
+                            el2.markingText = item.markingDescription
                             el2.validUntil = item.validUntil
                             el2.lat = item.latitude
                             el2.description = item.groupDescription
@@ -546,12 +556,12 @@ up:
                         ' the first point
 
                         Dim el As New shapElementStruct
-                        el.name = item.name.ToUpper
+                        el.name = item.name
                         el.id = id
 
-                        el.origin = item.origin.ToUpper
-                        el.type = item.type.ToUpper
-                        el.markingText = item.markingDescription.ToUpper
+                        el.origin = item.origin
+                        el.type = item.type
+                        el.markingText = item.markingDescription
                         el.validUntil = item.validUntil
                         el.lat = item.latitude
                         el.lon = item.longitude
@@ -579,12 +589,12 @@ up:
 
                                 If item2._used = False And item2.groupInternalId = lookForGroupInternalId And item2.codeGroup = item.codeGroup Then
                                     Dim el2 As New shapElementStruct
-                                    el2.name = item2.name.ToUpper
+                                    el2.name = item2.name
                                     el2.id = id
 
-                                    el2.origin = item2.origin.ToUpper
-                                    el2.type = item2.type.ToUpper
-                                    el2.markingText = item2.markingDescription.ToUpper
+                                    el2.origin = item2.origin
+                                    el2.type = item2.type
+                                    el2.markingText = item2.markingDescription
                                     el2.validUntil = item2.validUntil
                                     el2.lat = item2.latitude
                                     el2.lon = item2.longitude

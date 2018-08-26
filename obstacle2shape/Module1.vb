@@ -21,6 +21,9 @@ Module Module1
         Console.ResetColor()
     End Sub
 
+    Public decimalSeparator As String = Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator
+
+
     Dim Version = "1.5"
     Dim csvFile As String = ""
     Sub Main(args As String())
@@ -51,29 +54,32 @@ Module Module1
 
     Sub createShape()
         Dim fs As New FeatureSet(FeatureType.Line)
-        fs.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.Int32")))
+        fs.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
-        fs.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
+        fs.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
+        fs.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
         fs.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
         fs.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
+        fs.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
 
 
         ' group point
         Dim fsx As New FeatureSet(FeatureType.Point)
-        fsx.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.Int32")))
+        fsx.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
         fsx.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
         fsx.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
         fsx.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
+        fsx.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
+        fsx.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
         fsx.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
         fsx.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
         fsx.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
         fsx.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
-
+        fsx.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
         ' groups
         For Each cli In group
 
@@ -119,8 +125,10 @@ Module Module1
             Dim ffg As IFeature = fsx.AddFeature(New Point(cen.x, cen.y))
 
             ffg.DataRow("name") = descr
-            ffg.DataRow("height") = height
+            ffg.DataRow("label") = height & " " & descr
+            ffg.DataRow("height") = maxHeight
             ffg.DataRow("lighted") = lighted
+            ffg.DataRow("marked") = False
 
             ffg.DataRow.AcceptChanges()
 
@@ -140,8 +148,10 @@ Module Module1
                 Dim ffa As IFeature = fs.AddFeature(New Polygon(listCl))
 
                 ffa.DataRow("name") = descr
-                ffa.DataRow("height") = height
+                ffa.DataRow("label") = height & " " & descr
+                ffa.DataRow("height") = maxHeight
                 ffa.DataRow("lighted") = lighted
+                ffa.DataRow("marked") = False
                 ffa.DataRow.AcceptChanges()
             End If
 
@@ -152,15 +162,17 @@ Module Module1
 
         ' single obstacles
         Dim fsS As New FeatureSet(FeatureType.Point)
-        fsS.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.Int32")))
+        fsS.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
         fsS.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
         fsS.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
         fsS.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
-        fsS.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
+        fsS.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
+        fsS.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
         fsS.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
         fsS.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
         fsS.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
         fsS.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
+        fsS.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
 
         For Each cli In singleGroup
             Dim cl As New Coordinate(cli.lon, cli.lat)
@@ -172,7 +184,9 @@ Module Module1
             ffa.DataRow("markingText") = cli.markingText
             ffa.DataRow("origin") = cli.origin
             ffa.DataRow("lighted") = cli.lighted
-            ffa.DataRow("height") = "max " & cli.height & cli.heightUnit
+            ffa.DataRow("label") = "max " & cli.height & cli.heightUnit & " " & cli.description
+            ffa.DataRow("height") = cli.height
+            ffa.DataRow("marked") = cli.marked
             ffa.DataRow.AcceptChanges()
         Next
 
@@ -185,27 +199,31 @@ Module Module1
 
         ' single obstacles
         Dim singleObs As New FeatureSet(FeatureType.Point)
-        singleObs.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.Int32")))
+        singleObs.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
         singleObs.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
         singleObs.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
         singleObs.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
-        singleObs.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
+        singleObs.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
+        singleObs.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
         singleObs.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
         singleObs.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
         singleObs.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
         singleObs.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
+        singleObs.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
 
         For Each cli In singleGroup
             Dim cl As New Coordinate(cli.lon, cli.lat)
             Dim ffa As IFeature = singleObs.AddFeature(New Point(cl))
-
+            ffa.DataRow("id") = cli.id
             ffa.DataRow("name") = cli.name
             ffa.DataRow("type") = cli.type
             ffa.DataRow("description") = cli.description
             ffa.DataRow("markingText") = cli.markingText
-            ffa.DataRow("height") = cli.height & cli.heightUnit
+            ffa.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
+            ffa.DataRow("height") = cli.height
+            ffa.DataRow("origin") = cli.origin
             ffa.DataRow("lighted") = cli.lighted
-
+            ffa.DataRow("marked") = cli.marked
             ffa.DataRow.AcceptChanges()
         Next
 
@@ -217,13 +235,16 @@ Module Module1
                 Dim cl As New Coordinate(cli.lon, cli.lat)
                 Dim ffa As IFeature = singleObs.AddFeature(New Point(cl))
 
+
                 ffa.DataRow("name") = cli.name
                 ffa.DataRow("type") = cli.type
                 ffa.DataRow("description") = cli.description
                 ffa.DataRow("markingText") = cli.markingText
-                ffa.DataRow("height") = cli.height & cli.heightUnit
+                ffa.DataRow("origin") = cli.origin
+                ffa.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
+                ffa.DataRow("height") = cli.height
                 ffa.DataRow("lighted") = cli.lighted
-
+                ffa.DataRow("marked") = cli.marked
                 ffa.DataRow.AcceptChanges()
 
             Next
@@ -236,86 +257,95 @@ Module Module1
 
         ' line obstacles
         Dim fsL As New FeatureSet(FeatureType.Line)
-        fsL.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.Int32")))
+        fsL.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
-        fsL.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
+        fsL.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
+        fsL.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
         fsL.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
         fsL.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
+        fsL.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
+
+
 
         Dim fs_pylon As New FeatureSet(FeatureType.Point)
 
 
-        For Each clf In lines
+            For Each clf In lines
 
-            Dim maxHei As Double = 0
-            Dim listCl As New List(Of Coordinate)
-            Dim lighte As Boolean
-
-
-            For Each cli In clf
+                Dim maxHei As Double = 0
+                Dim listCl As New List(Of Coordinate)
+                Dim lighte As Boolean
 
 
+                For Each cli In clf
 
 
 
-                ' evaluate limits
-                Dim cl As New Coordinate(cli.lon, cli.lat)
-
-                If cli.height > maxHei Then maxHei = cli.height
-                If cli.lighted Then lighte = True
-                If cli.type.ToLower = "MAST".ToLower Then
 
 
-                    ' make pylon symbol
-                    Dim angle As Double = 0
-                    Dim dist As Double = 0.02
-                    Dim p(4) As Coordinate
+                    ' evaluate limits
+                    Dim cl As New Coordinate(cli.lon, cli.lat)
 
-                    For i As Short = 0 To 3
-                        Dim cp As New DoublePointStruct
-                        cp.x = cli.lon
-                        cp.y = cli.lat
-                        Dim cd = GetRadialCoordinates(cp, angle, dist)
+                    If cli.height > maxHei Then maxHei = cli.height
+                    If cli.lighted Then lighte = True
+                    If cli.type.ToLower = "MAST".ToLower Then
 
-                        angle += 90
-                        p(i) = New Coordinate(cd.x, cd.y)
 
-                        'Console.Write("|")
-                    Next
-                    p(4) = p(0)
-                    Dim lsf As New LineString(p)
-                    Dim frf = New Feature(lsf)
-                    Dim ffga As IFeature = fs_pylon.AddFeature(frf)
+                        ' make pylon symbol
+                        Dim angle As Double = 0
+                        Dim dist As Double = 0.02
+                        Dim p(4) As Coordinate
+
+                        For i As Short = 0 To 3
+                            Dim cp As New DoublePointStruct
+                            cp.x = cli.lon
+                            cp.y = cli.lat
+                            Dim cd = GetRadialCoordinates(cp, angle, dist)
+
+                            angle += 90
+                            p(i) = New Coordinate(cd.x, cd.y)
+
+                            'Console.Write("|")
+                        Next
+                        p(4) = p(0)
+                        Dim lsf As New LineString(p)
+                        Dim frf = New Feature(lsf)
+                        Dim ffga As IFeature = fs_pylon.AddFeature(frf)
+                    End If
+
+                    listCl.Add(cl)
+                Next
+
+            If doPylons Then fs_pylon.SaveAs("out\linePylon.shp", True)
+
+
+            If listCl.Count > 1 Then
+                    Dim ffa As IFeature = fsL.AddFeature(New LineString(listCl))
+                ffa.DataRow("id") = clf(0).id
+                ffa.DataRow("name") = clf(0).name
+                ffa.DataRow("type") = clf(0).type
+                ffa.DataRow("description") = clf(0).description
+                ffa.DataRow("markingText") = clf(0).markingText
+                ffa.DataRow("lighted") = clf(0).lighted
+                ffa.DataRow("label") = "max " & maxHei & clf(0).heightUnit & " " & clf(0).description
+                ffa.DataRow("height") = maxHei
+                ffa.DataRow("origin") = clf(0).origin
+                ffa.DataRow("marked") = clf(0).marked
+                ffa.DataRow.AcceptChanges()
                 End If
 
-                listCl.Add(cl)
+
             Next
 
 
 
 
-            If listCl.Count > 1 Then
-                Dim ffa As IFeature = fsL.AddFeature(New LineString(listCl))
+            fsL.SaveAs("out\allLine.shp", True)
 
-                ffa.DataRow("name") = clf(0).name
-                ffa.DataRow("type") = clf(0).type
-                ffa.DataRow("description") = clf(0).description
-                ffa.DataRow("markingText") = clf(0).markingText
-                ffa.DataRow("lighted") = lighte
-                ffa.DataRow("height") = "max " & maxHei & clf(0).heightUnit
-                ffa.DataRow("origin") = clf(0).origin
-                ffa.DataRow.AcceptChanges()
-            End If
-
-
-        Next
-
-        fsL.SaveAs("out\allLine.shp", True)
-        fs_pylon.SaveAs("out\linePylon.shp", True)
 
         ' write feature code file
 
@@ -365,6 +395,7 @@ Module Module1
         Dim description As String
         Dim name As String
         Dim markingText As String
+        Dim marked As Boolean
         Dim height As Long
         Dim lighted As Boolean
         Dim heightUnit As String
@@ -380,17 +411,27 @@ Module Module1
     Dim singleGroup As New List(Of shapElementStruct)
     Dim lines As New List(Of List(Of shapElementStruct))
 
+
+    Dim doGrouping As Boolean = False
+    Dim doPylons As Boolean = False
+
     Sub createElements(data() As csvStruct)
 
-        Dim id As Long = 0
+
 
 
         ' make all group obstacles)
         ' +++++++++++++++++++++++++
 
 
-
+        Dim itemCnt As Long = 0
         For Each item In data
+            itemCnt += 1
+
+            Dim perc = Math.Round(itemCnt / data.Length, 4) * 100
+            'Console.WriteLine(perc & " % finished")
+
+
             If item._used = False Then
                 ' take all those, that have no linktype, or linktype group
                 Select Case item.linkType.ToUpper
@@ -407,103 +448,121 @@ Module Module1
 up:
 
                         Dim cmm As Long = 0
-                        For Each item2 In data
 
-                            If item2.type.ToUpper = item.type.ToUpper And item2._used = False And (item2.linkType = "" Or item2.linkType = "GROUP") Then
+                        If doGrouping Then
 
-                                ' calc dist
-                                center.x = item.longitude
-                                center.y = item.latitude
 
-                                If coordLst.Count = 0 Then
-                                    coordLst.Add(center)
+                            For Each item2 In data
+                                If item2._used = False Then
+                                    If (item2.linkType = "" Or item2.linkType = "GROUP") Then
+                                        If item2.type.ToUpper = item.type.ToUpper Then
+
+                                            ' calc dist
+                                            center.x = item.longitude
+                                            center.y = item.latitude
+
+                                            If coordLst.Count = 0 Then
+                                                coordLst.Add(center)
+                                            End If
+
+                                            Dim pos2 As New DoublePointStruct
+                                            pos2.x = item2.longitude
+                                            pos2.y = item2.latitude
+
+                                            Dim inRange As Boolean = False
+
+
+                                            If doGrouping Then
+                                                For Each ff In coordLst
+                                                    Dim dist = GetGreatCircleDistance_ConstEarthRadiusInNm(ff.x, pos2.x, ff.y, pos2.y)
+                                                    If dist < groupThrNm And dist <> 0 Then
+                                                        inRange = True
+                                                        Exit For
+                                                    End If
+                                                Next
+                                            Else
+                                                noGroupFound = True
+
+                                            End If
+
+
+
+                                            If inRange Then
+
+                                                noGroupFound = False
+                                                'Console.WriteLine("added to group: " & type & "  |   distance to center of group: " & dist & " [Nm]")
+
+                                                ' the first point
+                                                If coordLst.Count = 1 Then
+                                                    ' Console.WriteLine("group element: " & type)
+
+                                                    Dim el As New shapElementStruct
+                                                    el.name = item.name
+                                                    el.id = item.codeGroup
+
+                                                    el.origin = item.origin.ToLower
+                                                    el.type = item.type.ToLower
+                                                    el.description = item.groupDescription
+                                                    el.markingText = item.markingDescription.ToLower
+                                                    el.validUntil = item.validUntil
+                                                    el.lat = item.latitude
+                                                    el.lon = item.longitude
+                                                    el.height = item.heightValue
+                                                    el.heightUnit = item.heightUnit
+
+                                                    el.marked = item.marked
+                                                    el.lighted = item.lighted
+                                                    groupObstacles.Add(el)
+
+                                                End If
+
+                                                Console.Write("*")
+
+                                                ' all others
+                                                Dim el2 As New shapElementStruct
+                                                el2.name = item2.name
+                                                el2.id = item.codeGroup
+
+                                                el2.origin = item2.origin
+                                                el2.type = item2.type
+                                                el2.markingText = item2.markingDescription
+                                                el2.validUntil = item2.validUntil
+                                                el2.lat = item2.latitude
+                                                el2.lon = item2.longitude
+                                                el2.height = item2.heightValue
+                                                el2.heightUnit = item2.heightUnit
+                                                el2.marked = item2.marked
+                                                el2.description = item2.groupDescription
+                                                el2.lighted = item2.lighted
+                                                groupObstacles.Add(el2)
+
+
+
+                                                coordLst.Add(pos2)
+
+                                                ' calc new center
+                                                Dim cn As Short = 0
+                                                Dim newC As New DoublePointStruct
+                                                For Each c In coordLst
+                                                    newC.x += c.x
+                                                    newC.y += c.y
+                                                    cn += 1
+                                                Next
+
+                                                center.x = newC.x / cn
+                                                center.y = newC.y / cn
+                                                data(cmm)._used = True
+
+                                                GoTo up
+
+                                            End If
+                                        End If
+                                    End If
                                 End If
 
-                                Dim pos2 As New DoublePointStruct
-                                pos2.x = item2.longitude
-                                pos2.y = item2.latitude
-
-                                Dim inRange As Boolean = False
-
-                                For Each ff In coordLst
-                                    Dim dist = GetGreatCircleDistance_ConstEarthRadiusInNm(ff.x, pos2.x, ff.y, pos2.y)
-                                    If dist < groupThrNm And dist <> 0 Then
-                                        inRange = True
-                                        Exit For
-                                    End If
-                                Next
-
-
-                                If inRange Then
-
-                                    noGroupFound = False
-                                    'Console.WriteLine("added to group: " & type & "  |   distance to center of group: " & dist & " [Nm]")
-
-                                    ' the first point
-                                    If coordLst.Count = 1 Then
-                                        ' Console.WriteLine("group element: " & type)
-
-                                        Dim el As New shapElementStruct
-                                        el.name = item.name
-                                        el.id = id
-
-                                        el.origin = item.origin.ToLower
-                                        el.type = item.type.ToLower
-                                        el.description = item.groupDescription
-                                        el.markingText = item.markingDescription.ToLower
-                                        el.validUntil = item.validUntil
-                                        el.lat = item.latitude
-                                        el.lon = item.longitude
-                                        el.height = item.heightValue
-                                        el.heightUnit = item.heightUnit
-                                        el.lighted = item.lighted
-                                        groupObstacles.Add(el)
-                                        id += 1
-                                    End If
-
-                                    Console.Write("*")
-
-                                    ' all others
-                                    Dim el2 As New shapElementStruct
-                                    el2.name = item2.name
-                                    el2.id = id
-
-                                    el2.origin = item2.origin
-                                    el2.type = item2.type
-                                    el2.markingText = item2.markingDescription
-                                    el2.validUntil = item2.validUntil
-                                    el2.lat = item2.latitude
-                                    el2.lon = item2.longitude
-                                    el2.height = item2.heightValue
-                                    el2.heightUnit = item2.heightUnit
-                                    el2.description = item2.groupDescription
-                                    el2.lighted = item2.lighted
-                                    groupObstacles.Add(el2)
-                                    id += 1
-
-
-                                    coordLst.Add(pos2)
-
-                                    ' calc new center
-                                    Dim cn As Short = 0
-                                    Dim newC As New DoublePointStruct
-                                    For Each c In coordLst
-                                        newC.x += c.x
-                                        newC.y += c.y
-                                        cn += 1
-                                    Next
-
-                                    center.x = newC.x / cn
-                                    center.y = newC.y / cn
-                                    data(cmm)._used = True
-
-                                    GoTo up
-
-                                End If
-                            End If
-                            cmm += 1
-                        Next
-
+                                cmm += 1
+                            Next
+                        End If
 
                         If noGroupFound = False Then
                             If groupObstacles.Count > 0 Then
@@ -514,7 +573,7 @@ up:
                             ' this is a single obstacle without group
                             Dim el2 As New shapElementStruct
                             el2.name = item.name
-                            el2.id = id
+                            el2.id = item.codeGroup
 
                             el2.origin = item.origin
                             el2.type = item.type
@@ -523,24 +582,37 @@ up:
                             el2.lat = item.latitude
                             el2.description = item.groupDescription
                             el2.lon = item.longitude
+                            el2.marked = item.marked
                             el2.height = item.heightValue
                             el2.heightUnit = item.heightUnit
                             el2.lighted = item.lighted
                             groupObstacles.Add(el2)
-                            id += 1
+
                             singleGroup.Add(el2)
                             Console.Write("#")
                         End If
 
                 End Select
+
             End If
         Next
 
+
+
+
         ' lines
         ' +++++++++++++++++++++++++
-
+        Dim usedsItems As Long = 0
         Dim cm As Long = 0
+        Dim percOld As Short = 0
         For Each item In data
+
+
+            Dim perc = Math.Round(usedsItems / data.Count, 4) * 100
+            If CType(perc, Integer) <> percOld Then
+                percOld = perc
+                Console.WriteLine(perc & "% finished")
+            End If
 
             If item._used = False Then
                 ' take all those, that have no linktype, or linktype group
@@ -557,7 +629,7 @@ up:
 
                         Dim el As New shapElementStruct
                         el.name = item.name
-                        el.id = id
+                        el.id = item.codeGroup
 
                         el.origin = item.origin
                         el.type = item.type
@@ -569,10 +641,10 @@ up:
                         el.heightUnit = item.heightUnit
                         el.description = item.groupDescription
                         el.lighted = item.lighted
+                        el.marked = item.marked
                         lineF.Add(el)
-                        id += 1
 
-                        Console.Write("  T")
+                        'Console.Write("  T")
 
                         data(cm)._used = True
 
@@ -584,38 +656,56 @@ up:
                         Do Until found = False
                             Dim qq As Long = 0
                             found = False
-                            For Each item2 In data
+
+                            Dim lower = cm - 200
+                            Dim upper = cm + 200
+                            If lower < 0 Then lower = 0
+                            If upper > data.Length - 1 Then upper = data.Length - 1
+                            For ha As Long = lower To upper
 
 
-                                If item2._used = False And item2.groupInternalId = lookForGroupInternalId And item2.codeGroup = item.codeGroup Then
-                                    Dim el2 As New shapElementStruct
-                                    el2.name = item2.name
-                                    el2.id = id
+                                Dim item2 = data(ha)
 
-                                    el2.origin = item2.origin
-                                    el2.type = item2.type
-                                    el2.markingText = item2.markingDescription
-                                    el2.validUntil = item2.validUntil
-                                    el2.lat = item2.latitude
-                                    el2.lon = item2.longitude
-                                    el2.description = item2.groupDescription
-                                    el2.lighted = item2.lighted
-                                    lineF.Add(el2)
-                                    id += 1
-                                    data(qq)._used = True
-                                    lookForGroupInternalId = item2.linkedToGroupInternalId
-                                    found = True
+                                If item2._used = False Then
 
-                                    Console.Write("-")
+                                    If (item2.groupInternalId = lookForGroupInternalId) Then
+                                        If item2.codeGroup = item.codeGroup Then
 
+
+
+                                            Dim el2 As New shapElementStruct
+                                            el2.name = item2.name
+                                            el2.id = item.codeGroup
+
+                                            el2.origin = item2.origin
+                                            el2.type = item2.type
+                                            el2.markingText = item2.markingDescription
+                                            el2.validUntil = item2.validUntil
+                                            el2.lat = item2.latitude
+                                            el2.lon = item2.longitude
+                                            el2.description = item2.groupDescription
+                                            el2.lighted = item2.lighted
+                                            el2.marked = item2.marked
+                                            lineF.Add(el2)
+
+                                            data(ha)._used = True
+                                            lookForGroupInternalId = item2.linkedToGroupInternalId
+                                            usedsItems += 1
+                                            found = True
+
+                                            '       Console.Write("-")
+
+                                        End If
+                                    End If
                                 End If
+
                                 qq += 1
                             Next
                         Loop
-                        Console.Write("T")
+                        'Console.Write("T")
 
                         ' check dist
-                        For i As Short = 1 To lineF.Count - 1
+                        For i As Long = 1 To lineF.Count - 1
 
                             Dim p1 = lineF(i)
                             Dim p2 = lineF(i - 1)
@@ -651,6 +741,7 @@ up:
         Dim latitude As Double
         Dim longitude As Double
         Dim defaultHeightFlag As Boolean
+        Dim marked As Boolean
         Dim verticalPrecision As Double
         Dim lateralPrecision As Double
         Dim obstacleRadius As Double
@@ -661,7 +752,17 @@ up:
         Dim origin As String
         Dim _used As Boolean
     End Structure
+
+    Public replFrom As String = "."
+    Public replTo As String = ","
+    Dim seperator As String = ";"
+
     Function parseCsv() As csvStruct()
+
+        If decimalSeparator = "." Then
+            replFrom = ","
+            replTo = "."
+        End If
 
 
         Dim reader As New StreamReader(csvFile, Encoding.Default)
@@ -673,6 +774,10 @@ up:
 
         Dim dataLst As New List(Of csvStruct)
 
+
+        Dim cntrLog As Short = 0
+        Dim kCntr As Long = 0
+
         ' parse the actual file
         Do While Not afile.EndOfData
             Try
@@ -683,58 +788,77 @@ up:
                     headerline = CurrentRecord
                 Else
                     Dim newRow As csvStruct
-                    newRow.codeGroup = getValue(CurrentRecord, "codeGroup")
+                    newRow.codeGroup = getValue(CurrentRecord, "codeGroupId")
                     Try
-                        newRow.groupInternalId = getValue(CurrentRecord, "groupInternalId")
+                        If getValue(CurrentRecord, "locGroupMemberId") <> "" Then newRow.groupInternalId = getValue(CurrentRecord, "locGroupMemberId")
                     Catch ex As Exception
                     End Try
 
-                    newRow.groupDescription = getValue(CurrentRecord, "groupDescription")
-                    newRow.name = getValue(CurrentRecord, "name")
-                    newRow.type = getValue(CurrentRecord, "type")
-                    newRow.lighted = getValue(CurrentRecord, "lighted")
-                    newRow.markingDescription = getValue(CurrentRecord, "markingDescription")
-                    newRow.heightUnit = getValue(CurrentRecord, "heightUnit")
-                    newRow.heightValue = getValue(CurrentRecord, "heightValue")
+                    newRow.groupDescription = getValue(CurrentRecord, "txtGroupName")
+                    newRow.name = getValue(CurrentRecord, "txtName")
+                    newRow.type = getValue(CurrentRecord, "codeType")
+
+                    newRow.lighted = getValue(CurrentRecord, "codeLgt").ToString.ToUpper = "Y".ToString.ToUpper
+                    newRow.markingDescription = getValue(CurrentRecord, "txtDescrMarking")
+                    newRow.marked = getValue(CurrentRecord, "codeMarking").ToString.ToLower = "Y".ToLower
+                    newRow.heightUnit = getValue(CurrentRecord, "uomDistVer")
+                    newRow.heightValue = getValue(CurrentRecord, "valHgt")
                     Try
-                        newRow.elevationValue = getValue(CurrentRecord, "elevationValue")
+                        newRow.elevationValue = getValue(CurrentRecord, "valElev").ToString.Replace(replFrom, replTo)
                     Catch ex As Exception
                     End Try
 
-                    newRow.latitude = getValue(CurrentRecord, "latitude").replace(".", ",")
-                    newRow.longitude = getValue(CurrentRecord, "longitude").replace(".", ",")
-                    newRow.defaultHeightFlag = getValue(CurrentRecord, "defaultHeightFlag")
+                    newRow.latitude = CType(getValue(CurrentRecord, "geoLat").ToString.Replace(replFrom, replTo), Double)
+                    newRow.longitude = getValue(CurrentRecord, "geoLong").ToString.Replace(replFrom, replTo)
+                    newRow.defaultHeightFlag = getValue(CurrentRecord, "defaultHeightFlag").ToString.ToUpper = "Y".ToString.ToUpper
                     Try
-                        If getValue(CurrentRecord, "verticalPrecision") <> "" Then newRow.verticalPrecision = getValue(CurrentRecord, "verticalPrecision")
+                        If getValue(CurrentRecord, "codeHgtAccuracy") <> "" Then newRow.verticalPrecision = getValue(CurrentRecord, "codeHgtAccuracy")
                     Catch ex As Exception
+                        Console.WriteLine("ERR: cant read: verticalPrecision")
                     End Try
 
                     Try
-                        If getValue(CurrentRecord, "lateralPrecision") <> "" Then newRow.lateralPrecision = getValue(CurrentRecord, "lateralPrecision")
+                        If getValue(CurrentRecord, "valRadiusAccuracy") <> "" Then newRow.lateralPrecision = getValue(CurrentRecord, "valRadiusAccuracy")
                     Catch ex As Exception
+                        Console.WriteLine("ERR: cant read: valRadiusAccuracy")
                     End Try
 
                     Try
-                        If getValue(CurrentRecord, "obstacleRadius") <> "" Then newRow.obstacleRadius = getValue(CurrentRecord, "obstacleRadius")
+                        If getValue(CurrentRecord, "valRadius") <> "" And getValue(CurrentRecord, "valRadius") <> "bazl" Then newRow.obstacleRadius = getValue(CurrentRecord, "valRadius")
                     Catch ex As Exception
+                        Console.WriteLine("ERR: cant read: obstacleRadius")
                     End Try
 
                     Try
-                        If getValue(CurrentRecord, "linkedToGroupInternalId") <> "" Then newRow.linkedToGroupInternalId = getValue(CurrentRecord, "linkedToGroupInternalId")
+                        If getValue(CurrentRecord, "locLinkedToGroupMemberId") <> "" Then newRow.linkedToGroupInternalId = getValue(CurrentRecord, "locLinkedToGroupMemberId")
                     Catch ex As Exception
+                        Console.WriteLine("ERR: cant read: linkedToGroupInternalId")
                     End Try
 
-                    newRow.linkType = getValue(CurrentRecord, "linkType")
+                    newRow.linkType = getValue(CurrentRecord, "codeLinkType")
                     Try
-                        If getValue(CurrentRecord, "validUntil") <> "" Then newRow.validUntil = getValue(CurrentRecord, "validUntil")
-                        If getValue(CurrentRecord, "effectiveFrom") <> "" Then newRow.effectiveFrom = getValue(CurrentRecord, "effectiveFrom")
+                        If getValue(CurrentRecord, "datetimeValidTil") <> "" Then newRow.validUntil = getValue(CurrentRecord, "datetimeValidTil")
+                        If getValue(CurrentRecord, "datetimeValidWef") <> "" Then newRow.effectiveFrom = getValue(CurrentRecord, "datetimeValidWef")
                     Catch ex As Exception
+                        Console.WriteLine("ERR: cant read: linkType")
                     End Try
 
-                    newRow.origin = getValue(CurrentRecord, "origin")
+                    newRow.origin = getValue(CurrentRecord, "source")
+
+                    'If newRow.origin = "openstreetmap" Then
+                    '    Dim k = 3
+                    'End If
+
                     dataLst.Add(newRow)
 
-                    Console.Write(".")
+                    ' testwise
+                    'If dataLst.Count > 30000 Then Return dataLst.ToArray
+                    cntrLog += 1
+                    If cntrLog > 1000 Then
+                        cntrLog = 0
+                        Console.WriteLine(kCntr & "k elements read..")
+                        kCntr += 1
+                    End If
                 End If
 
 

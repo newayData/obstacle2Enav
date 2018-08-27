@@ -426,19 +426,23 @@ Module Module1
 
         file.WriteLine("[Appearance]")
         file.WriteLine("FeatureClass=allPoints*,_veryHigh=True,origin=bazl,424") ' OAH
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=True,origin=bazl,415") ' OEF
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=False,origin=bazl,414") ' OEI
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=group,lighted=True,origin=bazl,416") ' OGF
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=, _linktype=group,lighted=False,origin=bazl,417") ' OGR
+        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=True,origin=bazl,type!=windturbine,415") ' OEF
+        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=False,origin=bazl,type!=windturbine,414") ' OEI
+        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=group,lighted=True,origin=bazl,type!=windturbine,416") ' OGF
+        file.WriteLine("FeatureClass=allPoints*,_veryHigh=, _linktype=group,lighted=False,origin=bazl,type!=windturbine,417") ' OGR
+
+        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=False,origin=bazl,type=windturbine,418") ' OEW
+        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=True,origin=bazl,type=windturbine,419") ' OWF
+
         file.WriteLine("FeatureClass=allLine*,marked=False,origin=bazl,_linktype=cable,type!=mast,_nonIcao=False,246") ' OES / OGS
         file.WriteLine("FeatureClass=allLine*,marked=True,origin=bazl,_linktype=cable,type!=mast,_nonIcao=False,248") ' OEM / OGM
         file.WriteLine("FeatureClass=allLine*,marked=False,origin=bazl,_linktype=cable,type!=mast,_nonIcao=True,250") ' OEK / OGK
         file.WriteLine("FeatureClass=allLine*,origin=bazl,type=mast,235") ' HL
 
         ' yet unknown
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,251") ' OEM / OGM
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,252") ' OEK / OGK
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,253") ' HL
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,248") ' OEM / OGM
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,250") ' OEK / OGK
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,235") ' HL
 
         file.WriteLine("[Label]")
         file.WriteLine("FeatureClass=allPoints*,label")

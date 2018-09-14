@@ -379,24 +379,24 @@ Module Module1
                     ffa.DataRow("_nonIcao") = clf(0)._nonIcaoMarking
                     ffa.DataRow.AcceptChanges()
 
-                    ' rega special rope markings
+                ' rega special rope markings
 
-                    ' this is for powerline masts
-                    If clf(0).type.ToUpper = "MAST" And clf(0)._linkType.ToUpper = "CABLE" And clf(0)._nonIcaoMarking = False And clf(0).marked = False Then
-                        For Each point In listCl
-                            Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
-                            fff.DataRow("type") = "t"
-                            fff.DataRow.AcceptChanges()
-                        Next
-                    End If
-                If clf(0)._nonIcaoMarking And clf(0)._linkType.ToUpper = "CABLE" Then
+                ' this is for powerline masts
+                If clf(0).type.ToUpper = "MAST" And clf(0)._linkType.ToUpper = "CABLE" And clf(0)._nonIcaoMarking = False And clf(0).marked = False And clf(0).origin = "bazl" Then
+                    For Each point In listCl
+                        Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
+                        fff.DataRow("type") = "t"
+                        fff.DataRow.AcceptChanges()
+                    Next
+                End If
+                If clf(0)._nonIcaoMarking And clf(0)._linkType.ToUpper = "CABLE" And clf(0).type.ToUpper <> "MAST" Then
                     For Each point In listCl
                         Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
                         fff.DataRow("type") = "triangle"
                         fff.DataRow.AcceptChanges()
                     Next
                 End If
-                If clf(0).marked And clf(0)._linkType.ToUpper = "CABLE" Then
+                If clf(0).marked And clf(0)._linkType.ToUpper = "CABLE" And clf(0).type.ToUpper <> "MAST" Then
                     For Each point In listCl
                         Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
                         fff.DataRow("type") = "point"
@@ -461,9 +461,9 @@ Module Module1
         file.WriteLine("FeatureClass=allLine*,origin!=bazl,type=mast,231") ' HL
 
         ' yet unknown
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,251") ' OEM / OGM
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,252") ' OEK / OGK
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,253") ' HL
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,248") ' OEM / OGM
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,250") ' OEK / OGK
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,235") ' HL
 
         file.WriteLine("[Label]")
         file.WriteLine("FeatureClass=allPoints*,label")

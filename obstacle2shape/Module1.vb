@@ -53,6 +53,10 @@ Module Module1
     End Sub
 
     Sub createShape()
+
+        Dim lineShCount As Short = 0
+
+
         Dim fs As New FeatureSet(FeatureType.Line)
         fs.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
@@ -149,15 +153,17 @@ Module Module1
 
 
             If listCl.Count > 1 Then
-                Dim ffa As IFeature = fs.AddFeature(New Polygon(listCl))
+                Dim fssfa As IFeature = fs.AddFeature(New Polygon(listCl))
 
-                ffa.DataRow("name") = descr
-                ffa.DataRow("label") = height & " " & descr
-                ffa.DataRow("height") = maxHeight
-                ffa.DataRow("lighted") = lighted
-                ffa.DataRow("marked") = False
-                ffa.DataRow("_linktype") = "group"
-                ffa.DataRow.AcceptChanges()
+                fssfa.DataRow("name") = descr
+                fssfa.DataRow("label") = height & " " & descr
+                fssfa.DataRow("height") = maxHeight
+                fssfa.DataRow("lighted") = lighted
+                fssfa.DataRow("marked") = False
+                fssfa.DataRow("_linktype") = "group"
+                fssfa.DataRow.AcceptChanges()
+
+
             End If
 
         Next
@@ -186,25 +192,25 @@ Module Module1
 
             ' If cli.origin = "bazl" Then 'debug
             Dim cl As New Coordinate(cli.lon, cli.lat)
-            Dim ffa As IFeature = fsS.AddFeature(New Point(cl))
+            Dim rr As IFeature = fsS.AddFeature(New Point(cl))
 
-                ffa.DataRow("name") = cli.name
-                ffa.DataRow("type") = cli.type.ToString.ToLower
-                ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
-                ffa.DataRow("description") = cli.description
-                ffa.DataRow("markingText") = cli.markingText
-                ffa.DataRow("origin") = cli.origin
-                ffa.DataRow("lighted") = cli.lighted
-                ffa.DataRow("label") = "max " & cli.height & cli.heightUnit & " " & cli.description
-                ffa.DataRow("height") = cli.height
-                ffa.DataRow("marked") = cli.marked
+            rr.DataRow("name") = cli.name
+            rr.DataRow("type") = cli.type.ToString.ToLower
+            rr.DataRow("_linktype") = cli._linkType.ToString.ToLower
+            rr.DataRow("description") = cli.description
+            rr.DataRow("markingText") = cli.markingText
+            rr.DataRow("origin") = cli.origin
+            rr.DataRow("lighted") = cli.lighted
+            rr.DataRow("label") = "max " & cli.height & cli.heightUnit & " " & cli.description
+            rr.DataRow("height") = cli.height
+            rr.DataRow("marked") = cli.marked
 
 
-                If cli.height > 150 Then
-                    ffa.DataRow("_veryHigh") = "True"
-                End If
+            If cli.height > 150 Then
+                rr.DataRow("_veryHigh") = "True"
+            End If
 
-                ffa.DataRow.AcceptChanges()
+            rr.DataRow.AcceptChanges()
             'End If
 
         Next
@@ -241,24 +247,24 @@ Module Module1
 
             'If cli.origin = "bazl" Then 'debug
             Dim cl As New Coordinate(cli.lon, cli.lat)
-                Dim ffa As IFeature = singleObs.AddFeature(New Point(cl))
-                ffa.DataRow("id") = cli.id
-                ffa.DataRow("name") = cli.name
-                ffa.DataRow("type") = cli.type.ToString.ToLower
-                ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
-                ffa.DataRow("description") = cli.description
-                ffa.DataRow("markingText") = cli.markingText
-                ffa.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
-                ffa.DataRow("height") = cli.height
-                ffa.DataRow("origin") = cli.origin
-                ffa.DataRow("lighted") = cli.lighted
-                ffa.DataRow("marked") = cli.marked
+            Dim ffa As IFeature = singleObs.AddFeature(New Point(cl))
+            ffa.DataRow("id") = cli.id
+            ffa.DataRow("name") = cli.name
+            ffa.DataRow("type") = cli.type.ToString.ToLower
+            ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
+            ffa.DataRow("description") = cli.description
+            ffa.DataRow("markingText") = cli.markingText
+            ffa.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
+            ffa.DataRow("height") = cli.height
+            ffa.DataRow("origin") = cli.origin
+            ffa.DataRow("lighted") = cli.lighted
+            ffa.DataRow("marked") = cli.marked
 
-                If cli.height > 150 Then
-                    ffa.DataRow("_veryHigh") = "True"
-                End If
+            If cli.height > 150 Then
+                ffa.DataRow("_veryHigh") = "True"
+            End If
 
-                ffa.DataRow.AcceptChanges()
+            ffa.DataRow.AcceptChanges()
             'End If
 
         Next
@@ -269,20 +275,20 @@ Module Module1
 
             For Each cli In q
                 Dim cl As New Coordinate(cli.lon, cli.lat)
-                Dim ffa As IFeature = singleObs.AddFeature(New Point(cl))
+                Dim fffs As IFeature = singleObs.AddFeature(New Point(cl))
 
                 ' If cli.origin = "bazl" Then 'debug
-                ffa.DataRow("name") = cli.name
-                    ffa.DataRow("type") = cli.type.ToString.ToLower
-                    ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
-                    ffa.DataRow("description") = cli.description
-                    ffa.DataRow("markingText") = cli.markingText
-                    ffa.DataRow("origin") = cli.origin
-                    ffa.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
-                    ffa.DataRow("height") = cli.height
-                    ffa.DataRow("lighted") = cli.lighted
-                    ffa.DataRow("marked") = cli.marked
-                    ffa.DataRow.AcceptChanges()
+                fffs.DataRow("name") = cli.name
+                fffs.DataRow("type") = cli.type.ToString.ToLower
+                fffs.DataRow("_linktype") = cli._linkType.ToString.ToLower
+                fffs.DataRow("description") = cli.description
+                fffs.DataRow("markingText") = cli.markingText
+                fffs.DataRow("origin") = cli.origin
+                fffs.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
+                fffs.DataRow("height") = cli.height
+                fffs.DataRow("lighted") = cli.lighted
+                fffs.DataRow("marked") = cli.marked
+                fffs.DataRow.AcceptChanges()
                 '  End If
 
 
@@ -317,46 +323,46 @@ Module Module1
 
         For Each clf In lines
 
-                Dim maxHei As Double = 0
-                Dim listCl As New List(Of Coordinate)
-                Dim lighte As Boolean
+            Dim maxHei As Double = 0
+            Dim listCl As New List(Of Coordinate)
+            Dim lighte As Boolean
 
 
-                For Each cli In clf
+            For Each cli In clf
 
 
                 ' evaluate limits
                 Dim cl As New Coordinate(cli.lon, cli.lat)
 
-                    If cli.height > maxHei Then maxHei = cli.height
-                    If cli.lighted Then lighte = True
-                    If cli.type.ToLower = "MAST".ToLower Then
+                If cli.height > maxHei Then maxHei = cli.height
+                If cli.lighted Then lighte = True
+                If cli.type.ToLower = "MAST".ToLower Then
 
 
-                        ' make pylon symbol
-                        Dim angle As Double = 0
-                        Dim dist As Double = 0.02
-                        Dim p(4) As Coordinate
+                    ' make pylon symbol
+                    Dim angle As Double = 0
+                    Dim dist As Double = 0.02
+                    Dim p(4) As Coordinate
 
-                        For i As Short = 0 To 3
-                            Dim cp As New DoublePointStruct
-                            cp.x = cli.lon
-                            cp.y = cli.lat
-                            Dim cd = GetRadialCoordinates(cp, angle, dist)
+                    For i As Short = 0 To 3
+                        Dim cp As New DoublePointStruct
+                        cp.x = cli.lon
+                        cp.y = cli.lat
+                        Dim cd = GetRadialCoordinates(cp, angle, dist)
 
-                            angle += 90
-                            p(i) = New Coordinate(cd.x, cd.y)
+                        angle += 90
+                        p(i) = New Coordinate(cd.x, cd.y)
 
-                            'Console.Write("|")
-                        Next
-                        p(4) = p(0)
-                        Dim lsf As New LineString(p)
-                        Dim frf = New Feature(lsf)
-                        Dim ffga As IFeature = fs_pylon.AddFeature(frf)
-                    End If
+                        'Console.Write("|")
+                    Next
+                    p(4) = p(0)
+                    Dim lsf As New LineString(p)
+                    Dim frf = New Feature(lsf)
+                    Dim ffga As IFeature = fs_pylon.AddFeature(frf)
+                End If
 
-                    listCl.Add(cl)
-                Next
+                listCl.Add(cl)
+            Next
 
             If doPylons Then fs_pylon.SaveAs("out\linePylon.shp", True)
 
@@ -365,22 +371,44 @@ Module Module1
 
                 ' If clf(0).origin = "bazl" Then 'debug
                 Dim ffa As IFeature = fsL.AddFeature(New LineString(listCl))
-                    ffa.DataRow("id") = clf(0).id
-                    ffa.DataRow("name") = clf(0).name
-                    ffa.DataRow("type") = clf(0).type.ToString.ToLower
-                    ffa.DataRow("_linktype") = clf(0)._linkType.ToString.ToLower
-                    ffa.DataRow("description") = clf(0).description
-                    ffa.DataRow("markingText") = clf(0).markingText
-                    ffa.DataRow("lighted") = clf(0).lighted
-                    ffa.DataRow("label") = "max " & maxHei & clf(0).heightUnit & " " & clf(0).description
-                    ffa.DataRow("height") = maxHei
-                    ffa.DataRow("origin") = clf(0).origin
-                    ffa.DataRow("marked") = clf(0).marked
-                    ffa.DataRow("_nonIcao") = clf(0)._nonIcaoMarking
-                    ffa.DataRow.AcceptChanges()
+                ffa.DataRow("id") = clf(0).id
+                ffa.DataRow("name") = clf(0).name
+                ffa.DataRow("type") = clf(0).type.ToString.ToLower
+                ffa.DataRow("_linktype") = clf(0)._linkType.ToString.ToLower
+                ffa.DataRow("description") = clf(0).description
+                ffa.DataRow("markingText") = clf(0).markingText
+                ffa.DataRow("lighted") = clf(0).lighted
+                ffa.DataRow("label") = "max " & maxHei & clf(0).heightUnit & " " & clf(0).description
+                ffa.DataRow("height") = maxHei
+                ffa.DataRow("origin") = clf(0).origin
+                ffa.DataRow("marked") = clf(0).marked
+                ffa.DataRow("_nonIcao") = clf(0)._nonIcaoMarking
+                ffa.DataRow.AcceptChanges()
+
+                If fsL.DataTable.Rows.Count > 100 * 10 ^ 3 Then
+                    fsL.SaveAs("out\allLine" & lineShCount & ".shp", True)
+                    lineShCount += 1
+                    fsL.Save()
+                    fsL = New FeatureSet(FeatureType.Line)
+                    fsL.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
+                    fsL.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
+                    fsL.DataTable.Columns.Add(New DataColumn("_linktype", Type.GetType("System.String")))
+                    fsL.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
+                    fsL.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
+                    fsL.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
+                    fsL.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
+                    fsL.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
+                    fsL.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
+                    fsL.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
+                    fsL.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
+                    fsL.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
+                    ' rega Special
+                    fsL.DataTable.Columns.Add(New DataColumn("_nonIcao", Type.GetType("System.String")))
+
+                End If
+
 
                 ' rega special rope markings
-
                 ' this is for powerline masts
                 If clf(0).type.ToUpper = "MAST" And clf(0)._linkType.ToUpper = "CABLE" And clf(0)._nonIcaoMarking = False And clf(0).marked = False And clf(0).origin = "bazl" Then
                     For Each point In listCl
@@ -416,7 +444,8 @@ Module Module1
         ' rega special
         _regaRopeMarkings.SaveAs("out\_regaRopeMarkings.shp", True)
 
-        fsL.SaveAs("out\allLine.shp", True)
+        lineShCount += 1
+        fsL.SaveAs("out\allLine" & lineShCount & ".shp", True)
 
 
         ' write feature code file

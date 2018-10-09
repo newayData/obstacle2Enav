@@ -204,6 +204,7 @@ Module Module1
             rr.DataRow("label") = "max " & cli.height & cli.heightUnit & " " & cli.description
             rr.DataRow("height") = cli.height
             rr.DataRow("marked") = cli.marked
+            rr.DataRow("elevation") = cli.elevation + cli.height
 
 
             If cli.height > 150 Then
@@ -248,7 +249,7 @@ Module Module1
             'If cli.origin = "bazl" Then 'debug
             Dim cl As New Coordinate(cli.lon, cli.lat)
             Dim ffa As IFeature = singleObs.AddFeature(New Point(cl))
-            ffa.DataRow("id") = cli.id
+            f   fa.DataRow("id") = cli.id
             ffa.DataRow("name") = cli.name
             ffa.DataRow("type") = cli.type.ToString.ToLower
             ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
@@ -259,6 +260,7 @@ Module Module1
             ffa.DataRow("origin") = cli.origin
             ffa.DataRow("lighted") = cli.lighted
             ffa.DataRow("marked") = cli.marked
+            ffa.DataRow("elevation") = cli.elevation + cli.height
 
             If cli.height > 150 Then
                 ffa.DataRow("_veryHigh") = "True"
@@ -288,6 +290,7 @@ Module Module1
                 fffs.DataRow("height") = cli.height
                 fffs.DataRow("lighted") = cli.lighted
                 fffs.DataRow("marked") = cli.marked
+                fffs.DataRow("elevation") = cli.elevation + cli.height
                 fffs.DataRow.AcceptChanges()
                 '  End If
 
@@ -383,6 +386,8 @@ Module Module1
                 ffa.DataRow("origin") = clf(0).origin
                 ffa.DataRow("marked") = clf(0).marked
                 ffa.DataRow("_nonIcao") = clf(0)._nonIcaoMarking
+                ffa.DataRow("elevation") = clf(0).elevation + maxHei
+
                 ffa.DataRow.AcceptChanges()
 
                 If fsL.DataTable.Rows.Count > 100 * 10 ^ 3 Then
@@ -625,6 +630,7 @@ up:
                                                     el.lon = item.longitude
                                                     el.height = item.heightValue
                                                     el.heightUnit = item.heightUnit
+                                                    el.elevation = item.elevationValue
                                                     el._linkType = item.linkType
 
 
@@ -654,6 +660,7 @@ up:
                                                 el2.description = item2.groupDescription
                                                 el2.lighted = item2.lighted
                                                 el2._linkType = item2.linkType
+                                                el2.elevation = item2.elevationValue
                                                 groupObstacles.Add(el2)
 
 
@@ -703,6 +710,7 @@ up:
                             el2.description = item.groupDescription
                             el2.lon = item.longitude
                             el2.marked = item.marked
+                            el2.elevation = item.elevationValue
                             el2.height = item.heightValue
                             el2.heightUnit = item.heightUnit
                             el2.lighted = item.lighted
@@ -763,6 +771,7 @@ up:
                         el.description = item.groupDescription
                         el.lighted = item.lighted
                         el.marked = item.marked
+                        el.elevation = item.elevationValue
                         el._linkType = item.linkType
 
                         ' rega special
@@ -816,6 +825,7 @@ up:
                                             el2.lon = item2.longitude
                                             el2.description = item2.groupDescription
                                             el2.lighted = item2.lighted
+                                            el2.elevation = item2.elevationValue
                                             el2.marked = item2.marked
                                             el2._linkType = item2.linkType
                                             lineF.Add(el2)

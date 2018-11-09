@@ -477,9 +477,9 @@ Module Module1
         file.WriteLine("FeatureClass=allLine*,origin=bazl,type=mast,235") ' HL
 
         ' yet unknown
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,248") ' OEM / OGM
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,250") ' OEK / OGK
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,235") ' HL
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,310") ' OEM / OGM
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,311") ' OEK / OGK
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,312") ' HL
 
         file.WriteLine("[Label]")
         file.WriteLine("FeatureClass=allPoints*,label")
@@ -498,9 +498,9 @@ Module Module1
         file.WriteLine("FeatureClass=allLine*,origin!=bazl,type=mast,231") ' HL
 
         ' yet unknown
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,248") ' OEM / OGM
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,250") ' OEK / OGK
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,235") ' HL
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,310") ' OEM / OGM
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,311") ' OEK / OGK
+        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,312") ' HL
 
         file.WriteLine("[Label]")
         file.WriteLine("FeatureClass=allPoints*,label")

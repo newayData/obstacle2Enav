@@ -932,6 +932,9 @@ up:
                 If headerline Is Nothing Then
                     headerline = CurrentRecord
                 Else
+
+                    Dim err = False ' exclude item if true
+
                     Dim newRow As csvStruct
                     newRow.codeGroup = getValue(CurrentRecord, "codeGroupId")
                     Try
@@ -947,15 +950,26 @@ up:
                     newRow.markingDescription = getValue(CurrentRecord, "txtDescrMarking")
                     newRow.marked = getValue(CurrentRecord, "codeMarking").ToString.ToLower = "Y".ToLower
                     newRow.heightUnit = getValue(CurrentRecord, "uomDistVer")
-                    newRow.heightValue = getValue(CurrentRecord, "valHgt")
+
+                    Try
+                        newRow.heightValue = getValue(CurrentRecord, "valHgt")
+                    Catch ex As Exception
+                        Console.WriteLine("WARN: cant find height (valHgt)! " & newRow.codeGroup)
+                    End Try
+
                     Try
                         newRow.elevationValue = getValue(CurrentRecord, "valElev").ToString.Replace(replFrom, replTo)
                     Catch ex As Exception
-                        Console.WriteLine("WARN: cant find elevation! " & newRow.codeGroup)
+                        Console.WriteLine("WARN: cant find elevation (valElev)! " & newRow.codeGroup)
                     End Try
 
-                    newRow.latitude = CType(getValue(CurrentRecord, "geoLat").ToString.Replace(replFrom, replTo), Double)
-                    newRow.longitude = getValue(CurrentRecord, "geoLong").ToString.Replace(replFrom, replTo)
+                    Try
+                        newRow.latitude = CType(getValue(CurrentRecord, "geoLat").ToString.Replace(replFrom, replTo), Double)
+                        newRow.longitude = getValue(CurrentRecord, "geoLong").ToString.Replace(replFrom, replTo)
+
+                    Catch ex As Exception
+                        err = True
+                    End Try
                     newRow.defaultHeightFlag = getValue(CurrentRecord, "defaultHeightFlag").ToString.ToUpper = "Y".ToString.ToUpper
                     Try
                         If getValue(CurrentRecord, "codeHgtAccuracy") <> "" Then newRow.verticalPrecision = getValue(CurrentRecord, "codeHgtAccuracy")
@@ -995,7 +1009,11 @@ up:
                     '    Dim k = 3
                     'End If
 
-                    dataLst.Add(newRow)
+                    If err = False Then
+                        dataLst.Add(newRow)
+                    Else
+                        Console.WriteLine("WARN: item excluded")
+                    End If
 
                     ' testwise
                     'If dataLst.Count > 30000 Then Return dataLst.ToArray

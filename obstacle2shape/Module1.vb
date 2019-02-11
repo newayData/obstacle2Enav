@@ -10,6 +10,7 @@ Module Module1
 
 
     Dim groupThrNm As Double = 1
+    Dim heightCorrValue As Long = 100 'unit as given
 
     ' header
     Sub writeHeader()
@@ -204,7 +205,7 @@ Module Module1
             rr.DataRow("label") = "max " & cli.height & cli.heightUnit & " " & cli.description
             rr.DataRow("height") = cli.height
             rr.DataRow("marked") = cli.marked
-            rr.DataRow("elevation") = cli.elevation + cli.height
+            rr.DataRow("elevation") = cli.elevation + cli.height - heightCorrValue
 
 
             If cli.height > 150 Then
@@ -260,7 +261,7 @@ Module Module1
             ffa.DataRow("origin") = cli.origin
             ffa.DataRow("lighted") = cli.lighted
             ffa.DataRow("marked") = cli.marked
-            ffa.DataRow("elevation") = cli.elevation + cli.height
+            ffa.DataRow("elevation") = cli.elevation + cli.height - heightCorrValue
 
             If cli.height > 150 Then
                 ffa.DataRow("_veryHigh") = "True"
@@ -290,7 +291,7 @@ Module Module1
                 fffs.DataRow("height") = cli.height
                 fffs.DataRow("lighted") = cli.lighted
                 fffs.DataRow("marked") = cli.marked
-                fffs.DataRow("elevation") = cli.elevation + cli.height
+                fffs.DataRow("elevation") = cli.elevation + cli.height - heightCorrValue
                 fffs.DataRow.AcceptChanges()
                 '  End If
 
@@ -386,7 +387,7 @@ Module Module1
                 ffa.DataRow("origin") = clf(0).origin
                 ffa.DataRow("marked") = clf(0).marked
                 ffa.DataRow("_nonIcao") = clf(0)._nonIcaoMarking
-                ffa.DataRow("elevation") = clf(0).elevation + maxHei
+                ffa.DataRow("elevation") = clf(0).elevation + maxHei - heightCorrValue
 
                 ffa.DataRow.AcceptChanges()
 
@@ -471,9 +472,9 @@ Module Module1
         file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=False,origin=bazl,type=windturbine,418") ' OEW
         file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=True,origin=bazl,type=windturbine,419") ' OWF
 
-        file.WriteLine("FeatureClass=allLine*,marked=False,origin=bazl,_linktype=cable,type!=mast,_nonIcao=False,246") ' OES / OGS
-        file.WriteLine("FeatureClass=allLine*,marked=True,origin=bazl,_linktype=cable,type!=mast,_nonIcao=False,248") ' OEM / OGM
-        file.WriteLine("FeatureClass=allLine*,marked=False,origin=bazl,_linktype=cable,type!=mast,_nonIcao=True,250") ' OEK / OGK
+        file.WriteLine("FeatureClass=allLine*,marked=False,origin=bazl,_linktype!=,type!=mast,_nonIcao=False,246") ' OES / OGS
+        file.WriteLine("FeatureClass=allLine*,marked=True,origin=bazl,_linktype!=,type!=mast,_nonIcao=False,248") ' OEM / OGM
+        file.WriteLine("FeatureClass=allLine*,marked=False,origin=bazl,_linktype!=,type!=mast,_nonIcao=True,250") ' OEK / OGK
         file.WriteLine("FeatureClass=allLine*,origin=bazl,type=mast,235") ' HL
 
         ' yet unknown
@@ -495,7 +496,15 @@ Module Module1
         file.WriteLine("FeatureClass=allPoints*,origin!=bazl,535") ' OAH
 
         file.WriteLine("FeatureClass=allLine*,origin!=bazl,_linktype=cable,type!=mast,300") ' OES / OGS
-        file.WriteLine("FeatureClass=allLine*,origin!=bazl,type=mast,231") ' HL
+        file.WriteLine("FeatureClass=allLine*,origin!=Westnetz GmbH,origin!=TransnetBW GmbH,origin!=bazl,origin!=ED Netze GmbH 20KV,origin!=ED Netze GmbH 110KV,origin!=RTE France,type=mast,231") ' HL
+
+        ' Arnes Fix für Obstacles in Deutschland, ED Netze GmbH 20KV und ED Netze GmbH 110KV / RTE France
+        file.WriteLine("FeatureClass=allLine*,origin=ED Netze GmbH 20KV,type=mast,235") ' HL
+        file.WriteLine("FeatureClass=allLine*,origin=ED Netze GmbH 110KV,type=mast,235") ' HL
+        file.WriteLine("FeatureClass=allLine*,origin=RTE France,type=mast,235") ' HL
+        file.WriteLine("FeatureClass=allLine*,origin=Westnetz GmbH,type=mast,235") ' HL
+        file.WriteLine("FeatureClass=allLine*,origin=TransnetBW GmbH,type=mast,235") ' HL
+
 
         ' yet unknown
         file.WriteLine("FeatureClass=_regaRopeMark*,type=point,310") ' OEM / OGM
@@ -633,7 +642,7 @@ up:
                                                     el.lon = item.longitude
                                                     el.height = item.heightValue
                                                     el.heightUnit = item.heightUnit
-                                                    el.elevation = item.elevationValue + item.heightValue
+                                                    el.elevation = item.elevationValue + item.heightValue - heightCorrValue
                                                     el._linkType = item.linkType
 
 
@@ -663,7 +672,7 @@ up:
                                                 el2.description = item2.groupDescription
                                                 el2.lighted = item2.lighted
                                                 el2._linkType = item2.linkType
-                                                el2.elevation = item2.elevationValue + item2.heightValue
+                                                el2.elevation = item2.elevationValue + item2.heightValue - heightCorrValue
                                                 groupObstacles.Add(el2)
 
 
@@ -713,7 +722,7 @@ up:
                             el2.description = item.groupDescription
                             el2.lon = item.longitude
                             el2.marked = item.marked
-                            el2.elevation = item.elevationValue + item.heightValue
+                            el2.elevation = item.elevationValue + item.heightValue - heightCorrValue
                             el2.height = item.heightValue
                             el2.heightUnit = item.heightUnit
                             el2.lighted = item.lighted
@@ -774,7 +783,7 @@ up:
                         el.description = item.groupDescription
                         el.lighted = item.lighted
                         el.marked = item.marked
-                        el.elevation = item.elevationValue + item.heightValue
+                        el.elevation = item.elevationValue + item.heightValue - heightCorrValue
                         el._linkType = item.linkType
 
                         ' rega special
@@ -828,7 +837,7 @@ up:
                                             el2.lon = item2.longitude
                                             el2.description = item2.groupDescription
                                             el2.lighted = item2.lighted
-                                            el2.elevation = item2.elevationValue + item2.heightValue
+                                            el2.elevation = item2.elevationValue + item2.heightValue - heightCorrValue
                                             el2.marked = item2.marked
                                             el2._linkType = item2.linkType
                                             lineF.Add(el2)

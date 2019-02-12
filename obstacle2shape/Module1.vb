@@ -495,13 +495,13 @@ Module Module1
         file.WriteLine("[Appearance]")
         file.WriteLine("FeatureClass=allPoints*,origin!=bazl,535") ' OAH
 
-        file.WriteLine("FeatureClass=allLine*,origin!=bazl,_linktype=cable,type!=mast,300") ' OES / OGS
-        file.WriteLine("FeatureClass=allLine*,origin!=Westnetz GmbH,origin!=TransnetBW GmbH,origin!=bazl,origin!=ED Netze GmbH 20KV,origin!=ED Netze GmbH 110KV,origin!=RTE France,type=mast,231") ' HL
+        file.WriteLine("FeatureClass=allLine*,origin!=Westnetz GmbH,origin!=TransnetBW GmbH,origin!=bazl,origin!=ED Netze GmbH 20KV,origin!=ED Netze GmbH 110KV,origin!=RTE_France,_linktype=cable,type!=mast,300") ' OES / OGS
+        file.WriteLine("FeatureClass=allLine*,origin!=Westnetz GmbH,origin!=TransnetBW GmbH,origin!=bazl,origin!=ED Netze GmbH 20KV,origin!=ED Netze GmbH 110KV,origin!=RTE_France,type=mast,231") ' HL
 
         ' Arnes Fix für Obstacles in Deutschland, ED Netze GmbH 20KV und ED Netze GmbH 110KV / RTE France
         file.WriteLine("FeatureClass=allLine*,origin=ED Netze GmbH 20KV,type=mast,235") ' HL
         file.WriteLine("FeatureClass=allLine*,origin=ED Netze GmbH 110KV,type=mast,235") ' HL
-        file.WriteLine("FeatureClass=allLine*,origin=RTE France,type=mast,235") ' HL
+        file.WriteLine("FeatureClass=allLine*,origin=RTE_France,type=mast,235") ' HL
         file.WriteLine("FeatureClass=allLine*,origin=Westnetz GmbH,type=mast,235") ' HL
         file.WriteLine("FeatureClass=allLine*,origin=TransnetBW GmbH,type=mast,235") ' HL
 

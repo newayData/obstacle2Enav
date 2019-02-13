@@ -10,7 +10,7 @@ Module Module1
 
 
     Dim groupThrNm As Double = 1
-    Dim heightCorrValue As Long = 100 'unit as given
+    Dim heightCorrValue As Long = 0 'unit as given
 
     ' header
     Sub writeHeader()
@@ -504,7 +504,6 @@ Module Module1
         file.WriteLine("FeatureClass=allLine*,origin=RTE_France,type=mast,235") ' HL
         file.WriteLine("FeatureClass=allLine*,origin=Westnetz GmbH,type=mast,235") ' HL
         file.WriteLine("FeatureClass=allLine*,origin=TransnetBW GmbH,type=mast,235") ' HL
-
 
         ' yet unknown
         file.WriteLine("FeatureClass=_regaRopeMark*,type=point,310") ' OEM / OGM

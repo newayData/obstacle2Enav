@@ -58,6 +58,15 @@ Module Module1
         Dim lineShCount As Short = 0
 
 
+        'rega special IFR APP Sectors
+        Dim fsP As New FeatureSet(FeatureType.Line)
+        fsP.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
+        fsP.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
+        fsP.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
+
+
+
+
         Dim fs As New FeatureSet(FeatureType.Line)
         fs.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
@@ -89,6 +98,8 @@ Module Module1
         fsx.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
         ' groups
         For Each cli In group
+
+
 
             Dim listCl As New List(Of Coordinate)
 
@@ -247,28 +258,30 @@ Module Module1
 
         For Each cli In singleGroup
 
-            'If cli.origin = "bazl" Then 'debug
-            Dim cl As New Coordinate(cli.lon, cli.lat)
-            Dim ffa As IFeature = singleObs.AddFeature(New Point(cl))
-            ffa.DataRow("id") = cli.id
-            ffa.DataRow("name") = cli.name
-            ffa.DataRow("type") = cli.type.ToString.ToLower
-            ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
-            ffa.DataRow("description") = cli.description
-            ffa.DataRow("markingText") = cli.markingText
-            ffa.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
-            ffa.DataRow("height") = cli.height
-            ffa.DataRow("origin") = cli.origin
-            ffa.DataRow("lighted") = cli.lighted
-            ffa.DataRow("marked") = cli.marked
-            ffa.DataRow("elevation") = cli.elevation + cli.height - heightCorrValue
+            If cli.origin <> "ifrSec" Then 'debug
+                Dim cl As New Coordinate(cli.lon, cli.lat)
+                Dim ffa As IFeature = singleObs.AddFeature(New Point(cl))
+                ffa.DataRow("id") = cli.id
+                ffa.DataRow("name") = cli.name
+                ffa.DataRow("type") = cli.type.ToString.ToLower
+                ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
+                ffa.DataRow("description") = cli.description
+                ffa.DataRow("markingText") = cli.markingText
+                ffa.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
+                ffa.DataRow("height") = cli.height
+                ffa.DataRow("origin") = cli.origin
+                ffa.DataRow("lighted") = cli.lighted
+                ffa.DataRow("marked") = cli.marked
+                ffa.DataRow("elevation") = cli.elevation + cli.height - heightCorrValue
 
-            If cli.height > 150 Then
-                ffa.DataRow("_veryHigh") = "True"
+                If cli.height > 150 Then
+                    ffa.DataRow("_veryHigh") = "True"
+                End If
+
+                ffa.DataRow.AcceptChanges()
+                'End If
             End If
 
-            ffa.DataRow.AcceptChanges()
-            'End If
 
         Next
 
@@ -326,46 +339,48 @@ Module Module1
 
 
         For Each clf In lines
-
             Dim maxHei As Double = 0
             Dim listCl As New List(Of Coordinate)
-            Dim lighte As Boolean
+                Dim lighte As Boolean
 
 
-            For Each cli In clf
+                For Each cli In clf
+
+                If cli.origin <> "ifrSec" Then 'debug
 
 
-                ' evaluate limits
-                Dim cl As New Coordinate(cli.lon, cli.lat)
+                    ' evaluate limits
+                    Dim cl As New Coordinate(cli.lon, cli.lat)
 
-                If cli.height > maxHei Then maxHei = cli.height
-                If cli.lighted Then lighte = True
-                If cli.type.ToLower = "MAST".ToLower Then
+                    If cli.height > maxHei Then maxHei = cli.height
+                    If cli.lighted Then lighte = True
+                    If cli.type.ToLower = "MAST".ToLower Then
 
 
-                    ' make pylon symbol
-                    Dim angle As Double = 0
-                    Dim dist As Double = 0.02
-                    Dim p(4) As Coordinate
+                        ' make pylon symbol
+                        Dim angle As Double = 0
+                        Dim dist As Double = 0.02
+                        Dim p(4) As Coordinate
 
-                    For i As Short = 0 To 3
-                        Dim cp As New DoublePointStruct
-                        cp.x = cli.lon
-                        cp.y = cli.lat
-                        Dim cd = GetRadialCoordinates(cp, angle, dist)
+                        For i As Short = 0 To 3
+                            Dim cp As New DoublePointStruct
+                            cp.x = cli.lon
+                            cp.y = cli.lat
+                            Dim cd = GetRadialCoordinates(cp, angle, dist)
 
-                        angle += 90
-                        p(i) = New Coordinate(cd.x, cd.y)
+                            angle += 90
+                            p(i) = New Coordinate(cd.x, cd.y)
 
-                        'Console.Write("|")
-                    Next
-                    p(4) = p(0)
-                    Dim lsf As New LineString(p)
-                    Dim frf = New Feature(lsf)
-                    Dim ffga As IFeature = fs_pylon.AddFeature(frf)
+                            'Console.Write("|")
+                        Next
+                        p(4) = p(0)
+                        Dim lsf As New LineString(p)
+                        Dim frf = New Feature(lsf)
+                        Dim ffga As IFeature = fs_pylon.AddFeature(frf)
+                    End If
+
+                    listCl.Add(cl)
                 End If
-
-                listCl.Add(cl)
             Next
 
             If doPylons Then fs_pylon.SaveAs("out\linePylon.shp", True)
@@ -442,13 +457,37 @@ Module Module1
                 End If
             End If
 
+        Next
+
+        ' Those are IFR Sectors - rega special
 
 
-            'End If
+        For Each clf In lines
+            Dim listCl As New List(Of Coordinate)
+            Dim elementFound As Boolean = False
+            For Each cli In clf
+
+                If cli.origin = "ifrSec" Then
+
+                    Dim cc = New Coordinate(cli.lon, cli.lat)
+
+                    listCl.Add(cc)
+                    elementFound = True
+                End If
+
+            Next
+
+            If elementFound And listCl.Count > 1 Then
+                Dim ffa As IFeature = fsP.AddFeature(New Polygon(listCl))
+                ffa.DataRow("id") = clf(0).id
+                ffa.DataRow("name") = clf(0).name
+                ffa.DataRow("type") = "IFR_SEC"
+            End If
 
 
         Next
 
+        fsP.SaveAs("out\_ifrSec.shp", True)
 
         ' rega special
         _regaRopeMarkings.SaveAs("out\_regaRopeMarkings.shp", True)
@@ -482,12 +521,50 @@ Module Module1
         file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,311") ' OEK / OGK
         file.WriteLine("FeatureClass=_regaRopeMark*,type=t,312") ' HL
 
+
+
+
         file.WriteLine("[Label]")
         file.WriteLine("FeatureClass=allPoints*,label")
         file.WriteLine("FeatureClass=allLine*,label")
-
         file.Close()
 
+
+
+        ' IFR sectors: rega special
+        file = My.Computer.FileSystem.OpenTextFileWriter("out/LSZH_ILS34.txt", False)
+        file.WriteLine("[Appearance]")
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY34_0,101") ' Red sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY34_1,102") ' green sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY34_2,102") ' green sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY34_3,103") ' yellow sector
+        file.Close()
+
+
+        file = My.Computer.FileSystem.OpenTextFileWriter("out/LSZH_ILS28.txt", False)
+        file.WriteLine("[Appearance]")
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY28_0,101") ' Red sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY28_1,102") ' green sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY28_2,102") ' green sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY28_3,103") ' yellow sector
+        file.Close()
+
+        file = My.Computer.FileSystem.OpenTextFileWriter("out/LSZH_ILS14.txt", False)
+        file.WriteLine("[Appearance]")
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_0,101") ' Red sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_4,103") ' green sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_2,102") ' green sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_3,102") ' green sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_1,103") ' yellow sector
+        file.Close()
+
+        file = My.Computer.FileSystem.OpenTextFileWriter("out/LSZH_ILS16.txt", False)
+        file.WriteLine("[Appearance]")
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY16_0,101") ' Red sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY16_1,102") ' green sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY16_2,102") ' green sector
+        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY16_3,103") ' yellow sector
+        file.Close()
 
 
         file = My.Computer.FileSystem.OpenTextFileWriter("out/fc_inofficial.txt", False)
@@ -516,6 +593,7 @@ Module Module1
         file.WriteLine("[Label]")
         file.WriteLine("FeatureClass=allPoints*,label")
         file.WriteLine("FeatureClass=allLine*,label")
+
 
         file.Close()
 

@@ -439,7 +439,7 @@ Module Module1
                         fff.DataRow.AcceptChanges()
                     Next
                 End If
-                If clf(0)._nonIcaoMarking And clf(0)._linkType.ToUpper = "CABLE" And clf(0).type.ToUpper <> "MAST" Then
+                If clf(0)._nonIcaoMarking And clf(0)._linkType.ToUpper = "CABLE" Then
                     For Each point In listCl
                         Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
                         fff.DataRow("type") = "triangle"

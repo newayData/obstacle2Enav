@@ -26,7 +26,8 @@ Module Module1
 
 
     Dim Version = "1.5"
-    Dim csvFile As String = ""
+    Dim csvFile As String
+    Dim ignoreSources() As String = {"none"}
     Sub Main(args As String())
         writeHeader()
 
@@ -37,7 +38,17 @@ Module Module1
                 csvFile = item
             End If
 
+            If lastItem.Contains("--i") Then
+                ignoreSources = item.ToLower.Split(",")
+            End If
+
+
             lastItem = item
+        Next
+
+
+        For Each s In ignoreSources
+            Console.WriteLine("ignore source: " & s)
         Next
 
         If System.IO.File.Exists(csvFile) Then
@@ -1099,9 +1110,16 @@ up:
                     'End If
 
                     If err = False Then
-                        dataLst.Add(newRow)
+
+                        If ignoreSources.Contains(newRow.origin.ToLower) = False Then
+                            dataLst.Add(newRow)
+                        Else
+                            Console.Write("|")
+                        End If
+
+
                     Else
-                        Console.WriteLine("WARN: item excluded")
+                            Console.WriteLine("WARN: item excluded")
                     End If
 
                     ' testwise

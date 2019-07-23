@@ -733,7 +733,7 @@ up:
                                                     el.lon = item.longitude
                                                     el.height = item.heightValue
                                                     el.heightUnit = item.heightUnit
-                                                    el.elevation = item.elevationValue + item.heightValue - heightCorrValue
+                                                    el.elevation = item.elevationValue - heightCorrValue
                                                     el._linkType = item.linkType
 
 
@@ -763,7 +763,7 @@ up:
                                                 el2.description = item2.groupDescription
                                                 el2.lighted = item2.lighted
                                                 el2._linkType = item2.linkType
-                                                el2.elevation = item2.elevationValue + item2.heightValue - heightCorrValue
+                                                el2.elevation = item2.elevationValue - heightCorrValue
                                                 groupObstacles.Add(el2)
 
 
@@ -813,7 +813,7 @@ up:
                             el2.description = item.groupDescription
                             el2.lon = item.longitude
                             el2.marked = item.marked
-                            el2.elevation = item.elevationValue + item.heightValue - heightCorrValue
+                            el2.elevation = item.elevationValue - heightCorrValue
                             el2.height = item.heightValue
                             el2.heightUnit = item.heightUnit
                             el2.lighted = item.lighted
@@ -874,7 +874,7 @@ up:
                         el.description = item.groupDescription
                         el.lighted = item.lighted
                         el.marked = item.marked
-                        el.elevation = item.elevationValue + item.heightValue - heightCorrValue
+                        el.elevation = item.elevationValue - heightCorrValue
                         el._linkType = item.linkType
 
                         ' rega special
@@ -928,7 +928,7 @@ up:
                                             el2.lon = item2.longitude
                                             el2.description = item2.groupDescription
                                             el2.lighted = item2.lighted
-                                            el2.elevation = item2.elevationValue + item2.heightValue - heightCorrValue
+                                            el2.elevation = item2.heightValue - heightCorrValue
                                             el2.marked = item2.marked
                                             el2._linkType = item2.linkType
                                             lineF.Add(el2)

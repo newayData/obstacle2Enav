@@ -10,7 +10,6 @@ Module Module1
 
 
     Dim groupThrNm As Double = 1
-    Dim heightCorrValue As Long = 0 'unit as given
 
     ' header
     Sub writeHeader()
@@ -227,7 +226,7 @@ Module Module1
             rr.DataRow("label") = "max " & cli.height & cli.heightUnit & " " & cli.description
             rr.DataRow("height") = cli.height
             rr.DataRow("marked") = cli.marked
-            rr.DataRow("elevation") = cli.elevation + cli.height - heightCorrValue
+            rr.DataRow("elevation") = cli.elevation + cli.height
 
 
             If cli.height > 150 Then
@@ -283,7 +282,7 @@ Module Module1
                 ffa.DataRow("origin") = cli.origin
                 ffa.DataRow("lighted") = cli.lighted
                 ffa.DataRow("marked") = cli.marked
-                ffa.DataRow("elevation") = cli.elevation + cli.height - heightCorrValue
+                ffa.DataRow("elevation") = cli.elevation + cli.height
 
                 If cli.height > 150 Then
                     ffa.DataRow("_veryHigh") = "True"
@@ -315,7 +314,7 @@ Module Module1
                 fffs.DataRow("height") = cli.height
                 fffs.DataRow("lighted") = cli.lighted
                 fffs.DataRow("marked") = cli.marked
-                fffs.DataRow("elevation") = cli.elevation + cli.height - heightCorrValue
+                fffs.DataRow("elevation") = cli.elevation + cli.height
                 fffs.DataRow.AcceptChanges()
                 '  End If
 
@@ -348,11 +347,10 @@ Module Module1
 
         Dim fs_pylon As New FeatureSet(FeatureType.Point)
 
-
         For Each clf In lines
             Dim maxHei As Double = 0
             Dim listCl As New List(Of Coordinate)
-                Dim lighte As Boolean
+            Dim lighte As Boolean
 
 
                 For Each cli In clf
@@ -399,44 +397,78 @@ Module Module1
 
             If listCl.Count > 1 Then
 
-                ' If clf(0).origin = "bazl" Then 'debug
-                Dim ffa As IFeature = fsL.AddFeature(New LineString(listCl))
-                ffa.DataRow("id") = clf(0).id
-                ffa.DataRow("name") = clf(0).name
-                ffa.DataRow("type") = clf(0).type.ToString.ToLower
-                ffa.DataRow("_linktype") = clf(0)._linkType.ToString.ToLower
-                ffa.DataRow("description") = clf(0).description
-                ffa.DataRow("markingText") = clf(0).markingText
-                ffa.DataRow("lighted") = clf(0).lighted
-                ffa.DataRow("label") = "max " & maxHei & clf(0).heightUnit & " " & clf(0).description
-                ffa.DataRow("height") = maxHei
-                ffa.DataRow("origin") = clf(0).origin
-                ffa.DataRow("marked") = clf(0).marked
-                ffa.DataRow("_nonIcao") = clf(0)._nonIcaoMarking
-                ffa.DataRow("elevation") = clf(0).elevation + maxHei - heightCorrValue
+                For segmentId As Long = 0 To listCl.Count - 2
 
-                ffa.DataRow.AcceptChanges()
+                    Dim seg As New List(Of Coordinate)
+                    seg.Add(listCl(segmentId))
+                    seg.Add(listCl(segmentId + 1))
+
+                    'take the higher value
+                    Dim hightValHigher As Long = 0
+                    If clf(segmentId).height > clf(segmentId + 1).height Then
+                        hightValHigher = clf(segmentId).height
+                    Else
+                        hightValHigher = clf(segmentId + 1).height
+                    End If
+
+                    Dim elevValHigher As Long = 0
+                    If clf(segmentId).elevation > clf(segmentId + 1).elevation Then
+                        elevValHigher = clf(segmentId).elevation
+                    Else
+                        elevValHigher = clf(segmentId + 1).elevation
+                    End If
+
+
+
+
+                    ' If clf(0).origin = "bazl" Then 'debug
+                    Dim ffa As IFeature = fsL.AddFeature(New LineString(seg))
+                    ffa.DataRow("id") = clf(segmentId).id
+                    ffa.DataRow("name") = clf(segmentId).name
+                    ffa.DataRow("type") = clf(segmentId).type.ToString.ToLower
+                    ffa.DataRow("_linktype") = clf(segmentId)._linkType.ToString.ToLower
+                    ffa.DataRow("description") = clf(segmentId).description
+                    ffa.DataRow("markingText") = clf(segmentId).markingText
+                    ffa.DataRow("lighted") = clf(segmentId).lighted
+                    ffa.DataRow("label") = "max " & maxHei & clf(segmentId).heightUnit & " " & clf(segmentId).description
+                    ffa.DataRow("height") = hightValHigher
+                    ffa.DataRow("origin") = clf(segmentId).origin
+                    ffa.DataRow("marked") = clf(segmentId).marked
+                    ffa.DataRow("_nonIcao") = clf(segmentId)._nonIcaoMarking
+                    ffa.DataRow("elevation") = elevValHigher + hightValHigher
+
+                    ffa.DataRow.AcceptChanges()
+                Next
+
 
                 If fsL.DataTable.Rows.Count > 100 * 10 ^ 3 Then
-                    fsL.SaveAs("out\allLine" & lineShCount & ".shp", True)
-                    lineShCount += 1
-                    fsL.Save()
-                    fsL = New FeatureSet(FeatureType.Line)
-                    fsL.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
-                    fsL.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
-                    fsL.DataTable.Columns.Add(New DataColumn("_linktype", Type.GetType("System.String")))
-                    fsL.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
-                    fsL.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
-                    fsL.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
-                    fsL.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
-                    fsL.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
-                    fsL.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
-                    fsL.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
-                    fsL.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
-                    fsL.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
-                    ' rega Special
-                    fsL.DataTable.Columns.Add(New DataColumn("_nonIcao", Type.GetType("System.String")))
+                    Try
 
+                        Console.WriteLine("write part file: " & lineShCount)
+                        fsL.SaveAs("out\allLine" & lineShCount & ".shp", True)
+                        lineShCount += 1
+                        fsL.Save()
+                        fsL = New FeatureSet(FeatureType.Line)
+                        fsL.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
+                        fsL.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
+                        fsL.DataTable.Columns.Add(New DataColumn("_linktype", Type.GetType("System.String")))
+                        fsL.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
+                        fsL.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
+                        fsL.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
+                        fsL.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
+                        fsL.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
+                        fsL.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
+                        fsL.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
+                        fsL.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
+                        fsL.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
+                        ' rega Special
+                        fsL.DataTable.Columns.Add(New DataColumn("_nonIcao", Type.GetType("System.String")))
+
+                        Console.WriteLine("write part file: " & lineShCount & " finished")
+
+                    Catch ex As Exception
+                        Console.WriteLine("write part file: " & ex.Message & " ERROR")
+                    End Try
                 End If
 
 
@@ -471,8 +503,6 @@ Module Module1
         Next
 
         ' Those are IFR Sectors - rega special
-
-
         For Each clf In lines
             Dim listCl As New List(Of Coordinate)
             Dim elementFound As Boolean = False
@@ -733,7 +763,7 @@ up:
                                                     el.lon = item.longitude
                                                     el.height = item.heightValue
                                                     el.heightUnit = item.heightUnit
-                                                    el.elevation = item.elevationValue - heightCorrValue
+                                                    el.elevation = item.elevationValue
                                                     el._linkType = item.linkType
 
 
@@ -763,7 +793,7 @@ up:
                                                 el2.description = item2.groupDescription
                                                 el2.lighted = item2.lighted
                                                 el2._linkType = item2.linkType
-                                                el2.elevation = item2.elevationValue - heightCorrValue
+                                                el2.elevation = item2.elevationValue
                                                 groupObstacles.Add(el2)
 
 
@@ -813,7 +843,7 @@ up:
                             el2.description = item.groupDescription
                             el2.lon = item.longitude
                             el2.marked = item.marked
-                            el2.elevation = item.elevationValue - heightCorrValue
+                            el2.elevation = item.elevationValue
                             el2.height = item.heightValue
                             el2.heightUnit = item.heightUnit
                             el2.lighted = item.lighted
@@ -874,7 +904,7 @@ up:
                         el.description = item.groupDescription
                         el.lighted = item.lighted
                         el.marked = item.marked
-                        el.elevation = item.elevationValue - heightCorrValue
+                        el.elevation = item.elevationValue
                         el._linkType = item.linkType
 
                         ' rega special
@@ -928,7 +958,9 @@ up:
                                             el2.lon = item2.longitude
                                             el2.description = item2.groupDescription
                                             el2.lighted = item2.lighted
-                                            el2.elevation = item2.heightValue - heightCorrValue
+                                            el2.height = item2.heightValue
+                                            el2.elevation = item2.elevationValue
+
                                             el2.marked = item2.marked
                                             el2._linkType = item2.linkType
                                             lineF.Add(el2)
@@ -1052,13 +1084,16 @@ up:
                     newRow.heightUnit = getValue(CurrentRecord, "uomDistVer")
 
                     Try
-                        newRow.heightValue = getValue(CurrentRecord, "valHgt")
+                        newRow.heightValue = getValue(CurrentRecord, "valHgt").ToString.Replace(replFrom, replTo)
                     Catch ex As Exception
                         Console.WriteLine("WARN: cant find height (valHgt)! " & newRow.codeGroup)
                     End Try
 
                     Try
-                        newRow.elevationValue = getValue(CurrentRecord, "valElev").ToString.Replace(replFrom, replTo)
+                        If getValue(CurrentRecord, "valElev").ToString.Replace(replFrom, replTo) <> "" Then
+                            newRow.elevationValue = getValue(CurrentRecord, "valElev").ToString.Replace(replFrom, replTo)
+
+                        End If
                     Catch ex As Exception
                         Console.WriteLine("WARN: cant find elevation (valElev)! " & newRow.codeGroup)
                     End Try

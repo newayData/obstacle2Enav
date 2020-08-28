@@ -367,8 +367,6 @@ Module Module1
         file.WriteLine("FeatureClass=allPoints_labelElev*,type=CRANE,origin!=osm_all,314") ' OGR
         file.WriteLine("FeatureClass=allPoints_labelElev*,origin=osm_all,315") ' OGR
 
-        file.WriteLine("[Label]") ' OEW
-        file.WriteLine("FeatureClass=allPoints_labelElev*,label_elev") ' OWF
 
 
         ' labels with full value
@@ -379,12 +377,15 @@ Module Module1
         file.WriteLine("FeatureClass=allPoints_labelFull*,type=CRANE,origin!=osm_all,334") ' OGR
         file.WriteLine("FeatureClass=allPoints_labelFull*,origin=osm_all,335") ' OGR
 
-        file.WriteLine("[Label]") ' OEW
-        file.WriteLine("FeatureClass=allPoints_labelFull*,label_full") ' OWF
-
         file.WriteLine("FeatureClass=allLine*,type=mast,_linktype=cable,320") ' OGR
         file.WriteLine("FeatureClass=linePylon*,321") ' OGR
         file.WriteLine("FeatureClass=allLine*,type=building,_linktype=cable,301") ' OGR
+
+        file.WriteLine("[Label]") ' OEW
+        file.WriteLine("FeatureClass=allPoints_labelElev*,label_elev") ' OWF
+        file.WriteLine("FeatureClass=allPoints_labelFull*,label_full") ' OWF
+
+
 
 
 

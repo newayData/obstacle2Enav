@@ -68,11 +68,6 @@ Module Module1
         Dim lineShCount As Short = 0
 
 
-        'rega special IFR APP Sectors
-        Dim fsP As New FeatureSet(FeatureType.Line)
-        fsP.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
-        fsP.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
-        fsP.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
 
 
 
@@ -84,7 +79,7 @@ Module Module1
         fs.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
-        fs.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
+        fs.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
         fs.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
         fs.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
@@ -92,106 +87,7 @@ Module Module1
         fs.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
 
 
-        ' group point
-        Dim fsx As New FeatureSet(FeatureType.Point)
-        fsx.DataTable.Columns.Add(New DataColumn("id", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("_linktype", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
-        fsx.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
-        fsx.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
-        fsx.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
-        ' groups
-        For Each cli In group
 
-
-
-            Dim listCl As New List(Of Coordinate)
-
-            Dim descr = ""
-            Dim maxHeight As Double = 0
-            Dim height As String = ""
-
-            Dim dpfs As New List(Of DoublePointStruct)
-            Dim lighted As Boolean = False
-
-            For Each q In cli
-                Dim dp = New DoublePointStruct
-                dp.x = q.lon
-                dp.y = q.lat
-
-
-                ' check point is there
-                Dim pointisthere As Boolean = False
-                For Each ppa In dpfs
-                    If ppa.x = dp.x And ppa.y = dp.y Then
-                        pointisthere = True
-                        Exit For
-                    End If
-                Next
-
-                If Not pointisthere Then dpfs.Add(dp)
-
-                descr = q.description
-
-                If q.height > maxHeight Then
-                    maxHeight = q.height
-                    height = "max " & q.height & q.heightUnit
-                End If
-
-                If q.lighted Then lighted = True
-
-            Next
-
-            Dim cen = FindCentroid(dpfs.ToArray)
-
-            Dim ffg As IFeature = fsx.AddFeature(New Point(cen.x, cen.y))
-
-            ffg.DataRow("name") = descr
-            ffg.DataRow("label") = height & " " & descr
-            ffg.DataRow("height") = maxHeight
-            ffg.DataRow("lighted") = lighted
-            ffg.DataRow("marked") = False
-            ffg.DataRow("_linktype") = "group"
-
-
-            ffg.DataRow.AcceptChanges()
-
-            Dim res = makePolygonConcarve(dpfs.ToArray)
-            For Each p In res
-                If p.x = 0 And p.y = 0 Then
-                Else
-                    Dim cl As New Coordinate(p.x, p.y)
-                    listCl.Add(cl)
-                End If
-
-            Next
-
-
-
-            If listCl.Count > 1 Then
-                Dim fssfa As IFeature = fs.AddFeature(New Polygon(listCl))
-
-                fssfa.DataRow("name") = descr
-                fssfa.DataRow("label") = height & " " & descr
-                fssfa.DataRow("height") = maxHeight
-                fssfa.DataRow("lighted") = lighted
-                fssfa.DataRow("marked") = False
-                fssfa.DataRow("_linktype") = "group"
-                fssfa.DataRow.AcceptChanges()
-
-
-            End If
-
-        Next
-
-        fsx.SaveAs("out\groupedPoint.shp", True)
-        fs.SaveAs("out\groupedPolyLine.shp", True)
 
         ' single obstacles
         Dim fsS As New FeatureSet(FeatureType.Point)
@@ -201,7 +97,7 @@ Module Module1
         fsS.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
         fsS.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
         fsS.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
-        fsS.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
+        fsS.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
         fsS.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
         fsS.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
         fsS.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
@@ -224,7 +120,7 @@ Module Module1
             rr.DataRow("origin") = cli.origin
             rr.DataRow("lighted") = cli.lighted
             rr.DataRow("label") = "max " & cli.height & cli.heightUnit & " " & cli.description
-            rr.DataRow("height") = cli.height
+            rr.DataRow("height") = cli.height & " (" & cli.elevation + cli.height & ")"
             rr.DataRow("marked") = cli.marked
             rr.DataRow("elevation") = cli.elevation + cli.height
 
@@ -241,11 +137,6 @@ Module Module1
         fsS.SaveAs("out\groupedSingle.shp", True)
 
 
-        ' Rega Special : Markings
-        ' ***********************
-        Dim _regaRopeMarkings As New FeatureSet(FeatureType.Point)
-        _regaRopeMarkings.DataTable.Columns.Add(New DataColumn("type", Type.GetType("System.String")))
-        _regaRopeMarkings.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
 
         ' all point obstalces
         ' +++++++++++++++++++++
@@ -257,8 +148,9 @@ Module Module1
         singleObs.DataTable.Columns.Add(New DataColumn("_linktype", Type.GetType("System.String")))
         singleObs.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
         singleObs.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
-        singleObs.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
-        singleObs.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
+        singleObs.DataTable.Columns.Add(New DataColumn("label_elev", Type.GetType("System.String")))
+        singleObs.DataTable.Columns.Add(New DataColumn("label_full", Type.GetType("System.String")))
+        singleObs.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
         singleObs.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
         singleObs.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
         singleObs.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
@@ -277,7 +169,8 @@ Module Module1
                 ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
                 ffa.DataRow("description") = cli.description
                 ffa.DataRow("markingText") = cli.markingText
-                ffa.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
+                ffa.DataRow("label_full") = cli.elevation + cli.height & "'" & " (" & cli.height & "' AGL)"
+                ffa.DataRow("label_elev") = cli.elevation + cli.height & "'"
                 ffa.DataRow("height") = cli.height
                 ffa.DataRow("origin") = cli.origin
                 ffa.DataRow("lighted") = cli.lighted
@@ -295,37 +188,10 @@ Module Module1
 
         Next
 
-        ' groups
-        For Each q In group
 
 
-            For Each cli In q
-                Dim cl As New Coordinate(cli.lon, cli.lat)
-                Dim fffs As IFeature = singleObs.AddFeature(New Point(cl))
-
-                ' If cli.origin = "bazl" Then 'debug
-                fffs.DataRow("name") = cli.name
-                fffs.DataRow("type") = cli.type.ToString.ToLower
-                fffs.DataRow("_linktype") = cli._linkType.ToString.ToLower
-                fffs.DataRow("description") = cli.description
-                fffs.DataRow("markingText") = cli.markingText
-                fffs.DataRow("origin") = cli.origin
-                fffs.DataRow("label") = cli.height & cli.heightUnit & " " & cli.description
-                fffs.DataRow("height") = cli.height
-                fffs.DataRow("lighted") = cli.lighted
-                fffs.DataRow("marked") = cli.marked
-                fffs.DataRow("elevation") = cli.elevation + cli.height
-                fffs.DataRow.AcceptChanges()
-                '  End If
-
-
-            Next
-        Next
-
-        singleObs.SaveAs("out\allPoints.shp", True)
-
-
-
+        singleObs.SaveAs("out\allPoints_labelElev.shp", True)
+        singleObs.SaveAs("out\allPoints_labelFull.shp", True)
 
         ' line obstacles
         Dim fsL As New FeatureSet(FeatureType.Line)
@@ -335,15 +201,13 @@ Module Module1
         fsL.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
-        fsL.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
+        fsL.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
         fsL.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
         fsL.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
 
-        ' rega Special
-        fsL.DataTable.Columns.Add(New DataColumn("_nonIcao", Type.GetType("System.String")))
 
         Dim fs_pylon As New FeatureSet(FeatureType.Point)
 
@@ -351,48 +215,56 @@ Module Module1
             Dim maxHei As Double = 0
             Dim listCl As New List(Of Coordinate)
             Dim lighte As Boolean
+            Dim lastPoint As DoublePointStruct
+
+            For Each cli In clf
+                ' evaluate limits
+                Dim cl As New Coordinate(cli.lon, cli.lat)
+
+                If cli.height > maxHei Then maxHei = cli.height
+                If cli.lighted Then lighte = True
+                If cli.type.ToLower = "MAST".ToLower Then
+
+                    Dim cp As New DoublePointStruct
+                    cp.x = cli.lon
+                    cp.y = cli.lat
+                    ' make pylon symbol
+                    Dim angle As Double = 0
+                    Dim dist As Double = 0.015
+                    Dim p(4) As Coordinate
+
+                    For i As Short = 0 To 3
+
+                        Dim cd = GetRadialCoordinates(cp, angle, dist)
+
+                        angle += 90
+                        p(i) = New Coordinate(cd.x, cd.y)
+
+                        'Console.Write("|")
+                    Next
+                    p(4) = p(0)
 
 
-                For Each cli In clf
 
-                If cli.origin <> "ifrSec" Then 'debug
+                    Dim dist2lastpoint As Double = GetGreatCircleDistance_ConstEarthRadiusInNm(cp, lastPoint)
 
+                    If dist2lastpoint * 1852 > 40 Then
 
-                    ' evaluate limits
-                    Dim cl As New Coordinate(cli.lon, cli.lat)
-
-                    If cli.height > maxHei Then maxHei = cli.height
-                    If cli.lighted Then lighte = True
-                    If cli.type.ToLower = "MAST".ToLower Then
-
-
-                        ' make pylon symbol
-                        Dim angle As Double = 0
-                        Dim dist As Double = 0.02
-                        Dim p(4) As Coordinate
-
-                        For i As Short = 0 To 3
-                            Dim cp As New DoublePointStruct
-                            cp.x = cli.lon
-                            cp.y = cli.lat
-                            Dim cd = GetRadialCoordinates(cp, angle, dist)
-
-                            angle += 90
-                            p(i) = New Coordinate(cd.x, cd.y)
-
-                            'Console.Write("|")
-                        Next
-                        p(4) = p(0)
                         Dim lsf As New LineString(p)
                         Dim frf = New Feature(lsf)
                         Dim ffga As IFeature = fs_pylon.AddFeature(frf)
+
+                    Else
+                        Console.Write("x mast")
                     End If
 
-                    listCl.Add(cl)
+                    lastPoint = cp
                 End If
+                listCl.Add(cl)
+
             Next
 
-            If doPylons Then fs_pylon.SaveAs("out\linePylon.shp", True)
+
 
 
             If listCl.Count > 1 Then
@@ -431,10 +303,10 @@ Module Module1
                     ffa.DataRow("markingText") = clf(segmentId).markingText
                     ffa.DataRow("lighted") = clf(segmentId).lighted
                     ffa.DataRow("label") = "max " & maxHei & clf(segmentId).heightUnit & " " & clf(segmentId).description
-                    ffa.DataRow("height") = hightValHigher
+                    ffa.DataRow("height") = hightValHigher & " (" & elevValHigher + hightValHigher & ")"
                     ffa.DataRow("origin") = clf(segmentId).origin
                     ffa.DataRow("marked") = clf(segmentId).marked
-                    ffa.DataRow("_nonIcao") = clf(segmentId)._nonIcaoMarking
+
                     ffa.DataRow("elevation") = elevValHigher + hightValHigher
 
                     ffa.DataRow.AcceptChanges()
@@ -455,14 +327,12 @@ Module Module1
                         fsL.DataTable.Columns.Add(New DataColumn("name", Type.GetType("System.String")))
                         fsL.DataTable.Columns.Add(New DataColumn("description", Type.GetType("System.String")))
                         fsL.DataTable.Columns.Add(New DataColumn("label", Type.GetType("System.String")))
-                        fsL.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.Int32")))
+                        fsL.DataTable.Columns.Add(New DataColumn("height", Type.GetType("System.String")))
                         fsL.DataTable.Columns.Add(New DataColumn("elevation", Type.GetType("System.Int32")))
                         fsL.DataTable.Columns.Add(New DataColumn("markingText", Type.GetType("System.String")))
                         fsL.DataTable.Columns.Add(New DataColumn("origin", Type.GetType("System.String")))
                         fsL.DataTable.Columns.Add(New DataColumn("lighted", Type.GetType("System.String")))
                         fsL.DataTable.Columns.Add(New DataColumn("marked", Type.GetType("System.String")))
-                        ' rega Special
-                        fsL.DataTable.Columns.Add(New DataColumn("_nonIcao", Type.GetType("System.String")))
 
                         Console.WriteLine("write part file: " & lineShCount & " finished")
 
@@ -471,67 +341,12 @@ Module Module1
                     End Try
                 End If
 
-
-                ' rega special rope markings
-                ' this is for powerline masts
-                If clf(0).type.ToUpper = "MAST" And clf(0)._linkType.ToUpper = "CABLE" And clf(0)._nonIcaoMarking = False And clf(0).marked = False And clf(0).origin = "bazl" Then
-                    For Each point In listCl
-                        Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
-                        fff.DataRow("type") = "t"
-                        fff.DataRow("elevation") = -10000
-                        fff.DataRow.AcceptChanges()
-                    Next
-                End If
-                If clf(0)._nonIcaoMarking And clf(0)._linkType.ToUpper = "CABLE" Then
-                    For Each point In listCl
-                        Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
-                        fff.DataRow("type") = "triangle"
-                        fff.DataRow("elevation") = -10000
-                        fff.DataRow.AcceptChanges()
-                    Next
-                End If
-                If clf(0).marked And clf(0)._linkType.ToUpper = "CABLE" Then
-                    For Each point In listCl
-                        Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
-                        fff.DataRow("type") = "point"
-                        fff.DataRow("elevation") = -10000
-                        fff.DataRow.AcceptChanges()
-                    Next
-                End If
             End If
 
         Next
 
-        ' Those are IFR Sectors - rega special
-        For Each clf In lines
-            Dim listCl As New List(Of Coordinate)
-            Dim elementFound As Boolean = False
-            For Each cli In clf
 
-                If cli.origin = "ifrSec" Then
-
-                    Dim cc = New Coordinate(cli.lon, cli.lat)
-
-                    listCl.Add(cc)
-                    elementFound = True
-                End If
-
-            Next
-
-            If elementFound And listCl.Count > 1 Then
-                Dim ffa As IFeature = fsP.AddFeature(New Polygon(listCl))
-                ffa.DataRow("id") = clf(0).id
-                ffa.DataRow("name") = clf(0).name
-                ffa.DataRow("type") = "IFR_SEC"
-            End If
-
-
-        Next
-
-        fsP.SaveAs("out\_ifrSec.shp", True)
-
-        ' rega special
-        _regaRopeMarkings.SaveAs("out\_regaRopeMarkings.shp", True)
+        If doPylons Then fs_pylon.SaveAs("out\linePylon.shp", True)
 
         lineShCount += 1
         fsL.SaveAs("out\allLine" & lineShCount & ".shp", True)
@@ -543,97 +358,36 @@ Module Module1
         file = My.Computer.FileSystem.OpenTextFileWriter("out/fc_official.txt", False)
 
         file.WriteLine("[Appearance]")
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=True,origin=bazl,424") ' OAH
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=True,origin=bazl,type!=windturbine,415") ' OEF
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=False,origin=bazl,type!=windturbine,414") ' OEI
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=group,lighted=True,origin=bazl,type!=windturbine,416") ' OGF
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=, _linktype=group,lighted=False,origin=bazl,type!=windturbine,417") ' OGR
 
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=False,origin=bazl,type=windturbine,418") ' OEW
-        file.WriteLine("FeatureClass=allPoints*,_veryHigh=,_linktype=,lighted=True,origin=bazl,type=windturbine,419") ' OWF
+        ' labels with elevation value
+        file.WriteLine("FeatureClass=allPoints_labelElev*,type=CHIMNEY,origin!=osm_all,310") ' OAH
+        file.WriteLine("FeatureClass=allPoints_labelElev*,type=TOWER,origin!=osm_all,311") ' OEF
+        file.WriteLine("FeatureClass=allPoints_labelElev*,type=WINDTURBINE,origin!=osm_all,312") ' OEI
+        file.WriteLine("FeatureClass=allPoints_labelElev*,type=MAST,origin!=osm_all,313") ' OGF
+        file.WriteLine("FeatureClass=allPoints_labelElev*,type=CRANE,origin!=osm_all,314") ' OGR
+        file.WriteLine("FeatureClass=allPoints_labelElev*,origin=osm_all,315") ' OGR
 
-        file.WriteLine("FeatureClass=allLine*,marked=False,origin=bazl,_linktype!=,type!=mast,_nonIcao=False,246") ' OES / OGS
-        file.WriteLine("FeatureClass=allLine*,marked=True,origin=bazl,_linktype!=,type!=mast,_nonIcao=False,248") ' OEM / OGM
-        file.WriteLine("FeatureClass=allLine*,marked=False,origin=bazl,_linktype!=,type!=mast,_nonIcao=True,250") ' OEK / OGK
-        file.WriteLine("FeatureClass=allLine*,origin=bazl,type=mast,235") ' HL
-
-        ' yet unknown
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,310") ' OEM / OGM
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,311") ' OEK / OGK
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,312") ' HL
+        file.WriteLine("[Label]") ' OEW
+        file.WriteLine("FeatureClass=allPoints_labelElev*,label_elev") ' OWF
 
 
+        ' labels with full value
+        file.WriteLine("FeatureClass=allPoints_labelFull*,type=CHIMNEY,origin!=osm_all,330") ' OAH
+        file.WriteLine("FeatureClass=allPoints_labelFull*,type=TOWER,origin!=osm_all,331") ' OEF
+        file.WriteLine("FeatureClass=allPoints_labelFull*,type=WINDTURBINE,origin!=osm_all,332") ' OEI
+        file.WriteLine("FeatureClass=allPoints_labelFull*,type=MAST,origin!=osm_all,333") ' OGF
+        file.WriteLine("FeatureClass=allPoints_labelFull*,type=CRANE,origin!=osm_all,334") ' OGR
+        file.WriteLine("FeatureClass=allPoints_labelFull*,origin=osm_all,335") ' OGR
+
+        file.WriteLine("[Label]") ' OEW
+        file.WriteLine("FeatureClass=allPoints_labelFull*,label_full") ' OWF
+
+        file.WriteLine("FeatureClass=allLine*,type=mast,_linktype=cable,320") ' OGR
+        file.WriteLine("FeatureClass=linePylon*,321") ' OGR
+        file.WriteLine("FeatureClass=allLine*,type=building,_linktype=cable,301") ' OGR
 
 
-        file.WriteLine("[Label]")
-        file.WriteLine("FeatureClass=allPoints*,label")
-        file.WriteLine("FeatureClass=allLine*,label")
-        file.Close()
 
-
-
-        ' IFR sectors: rega special
-        file = My.Computer.FileSystem.OpenTextFileWriter("out/LSZH_ILS34.txt", False)
-        file.WriteLine("[Appearance]")
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY34_0,101") ' Red sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY34_1,102") ' green sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY34_2,102") ' green sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY34_3,103") ' yellow sector
-        file.Close()
-
-
-        file = My.Computer.FileSystem.OpenTextFileWriter("out/LSZH_ILS28.txt", False)
-        file.WriteLine("[Appearance]")
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY28_0,101") ' Red sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY28_1,102") ' green sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY28_2,102") ' green sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY28_3,103") ' yellow sector
-        file.Close()
-
-        file = My.Computer.FileSystem.OpenTextFileWriter("out/LSZH_ILS14.txt", False)
-        file.WriteLine("[Appearance]")
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_0,101") ' Red sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_4,103") ' green sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_2,102") ' green sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_3,102") ' green sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY14_1,103") ' yellow sector
-        file.Close()
-
-        file = My.Computer.FileSystem.OpenTextFileWriter("out/LSZH_ILS16.txt", False)
-        file.WriteLine("[Appearance]")
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY16_0,101") ' Red sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY16_1,102") ' green sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY16_2,102") ' green sector
-        file.WriteLine("FeatureClass=_ifrSec*,name=ifrSec_RWY16_3,103") ' yellow sector
-        file.Close()
-
-
-        file = My.Computer.FileSystem.OpenTextFileWriter("out/fc_inofficial.txt", False)
-
-        file.WriteLine("[Appearance]")
-        file.WriteLine("FeatureClass=allPoints*,origin!=bazl,535") ' OAH
-
-        file.WriteLine("FeatureClass=allLine*,origin!=Amprion,origin!=Westnetz GmbH,origin!=TransnetBW GmbH,origin!=bazl,origin!=ED Netze GmbH 20KV,origin!=ED Netze GmbH 110KV,origin!=RTE_France,_linktype=cable,type!=mast,300") ' OES / OGS
-        file.WriteLine("FeatureClass=allLine*,origin!=Amprion,origin!=Westnetz GmbH,origin!=TransnetBW GmbH,origin!=bazl,origin!=ED Netze GmbH 20KV,origin!=ED Netze GmbH 110KV,origin!=RTE_France,type=mast,231") ' HL
-        file.WriteLine("FeatureClass=allLine*,origin!=Amprion,origin!=Westnetz GmbH,origin!=TransnetBW GmbH,origin!=bazl,origin!=ED Netze GmbH 20KV,origin!=ED Netze GmbH 110KV,origin!=RTE_France,type=mast,231") ' HL
-
-
-        ' Arnes Fix für Obstacles in Deutschland, ED Netze GmbH 20KV und ED Netze GmbH 110KV / RTE France
-        file.WriteLine("FeatureClass=allLine*,origin=ED Netze GmbH 20KV,type=mast,235") ' HL
-        file.WriteLine("FeatureClass=allLine*,origin=ED Netze GmbH 110KV,type=mast,235") ' HL
-        file.WriteLine("FeatureClass=allLine*,origin=RTE_France,type=mast,235") ' HL
-        file.WriteLine("FeatureClass=allLine*,origin=Westnetz GmbH,type=mast,235") ' HL
-        file.WriteLine("FeatureClass=allLine*,origin=TransnetBW GmbH,type=mast,235") ' HL
-        file.WriteLine("FeatureClass=allLine*,origin=Amprion,type=mast,235") ' HL
-
-        ' yet unknown
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=point,310") ' OEM / OGM
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=triangle,311") ' OEK / OGK
-        file.WriteLine("FeatureClass=_regaRopeMark*,type=t,312") ' HL
-
-        file.WriteLine("[Label]")
-        file.WriteLine("FeatureClass=allPoints*,label")
-        file.WriteLine("FeatureClass=allLine*,label")
 
 
         file.Close()
@@ -645,7 +399,7 @@ Module Module1
         Dim id As String
         Dim type As String
         Dim _linkType As String
-        Dim _nonIcaoMarking As Boolean
+
         Dim description As String
         Dim name As String
         Dim markingText As String
@@ -667,7 +421,7 @@ Module Module1
 
 
     Dim doGrouping As Boolean = False
-    Dim doPylons As Boolean = False
+    Dim doPylons As Boolean = True
 
     Sub createElements(data() As csvStruct)
 
@@ -907,13 +661,7 @@ up:
                         el.elevation = item.elevationValue
                         el._linkType = item.linkType
 
-                        ' rega special
-                        If item.markingDescription.ToLower.Contains("cable") And item.markingDescription.ToLower.Contains("warn") Then
-                            el._nonIcaoMarking = True
 
-
-
-                        End If
 
                         lineF.Add(el)
 
@@ -1154,7 +902,7 @@ up:
 
 
                     Else
-                            Console.WriteLine("WARN: item excluded")
+                        Console.WriteLine("WARN: item excluded")
                     End If
 
                     ' testwise
@@ -1165,6 +913,12 @@ up:
                         Console.WriteLine(kCntr & "k elements read..")
                         kCntr += 1
                     End If
+
+                    ' fix meter units
+                    If newRow.heightUnit.ToUpper = "M" Then
+                        newRow.heightValue /= 0.3048
+                    End If
+
                 End If
 
 
@@ -1331,6 +1085,40 @@ up:
         ssd.y = y
         Return ssd
     End Function
+
+    Function GetGreatCircleDistance_ConstEarthRadiusInNm(ByVal Position1 As DoublePointStruct, ByVal Position2 As DoublePointStruct) As Double
+        Dim cos_phiA As Double = Math.Cos(Position1.y * Math.PI / 180)
+        Dim cos_phiB As Double = Math.Cos(Position2.y * Math.PI / 180)
+        Dim sin_phiA As Double = Math.Sin(Position1.y * Math.PI / 180)
+        Dim sin_phiB As Double = Math.Sin(Position2.y * Math.PI / 180)
+        Dim cos_lambdaBLamdaA As Double = Math.Cos((Position2.x - Position1.x) * Math.PI / 180)
+
+        Dim dist As Double = EarthRadius * Math.Acos(sin_phiA * sin_phiB + cos_phiA * cos_phiB * cos_lambdaBLamdaA)
+
+        Return dist
+
+        'Notes from 22.3.2012
+        Dim V1 As VectorStruct
+        V1.x = EarthRadius * (Math.Cos(Position1.y * Math.PI / 180) * Math.Cos(Position1.x * Math.PI / 180))
+        V1.y = EarthRadius * (Math.Cos(Position1.y * Math.PI / 180) * Math.Sin(Position1.x * Math.PI / 180))
+        V1.z = EarthRadius * (Math.Sin(Position1.y * Math.PI / 180))
+
+        Dim V2 As VectorStruct
+        V2.x = EarthRadius * (Math.Cos(Position2.y * Math.PI / 180) * Math.Cos(Position2.x * Math.PI / 180))
+        V2.y = EarthRadius * (Math.Cos(Position2.y * Math.PI / 180) * Math.Sin(Position2.x * Math.PI / 180))
+        V2.z = EarthRadius * (Math.Sin(Position2.y * Math.PI / 180))
+
+        Dim AngleBetw As Double = Math.Acos((V1.x * V2.x + V1.y * V2.y + V1.z * V2.z) / (Math.Acos(V1.x ^ 2 + V1.y ^ 2 + V1.z ^ 2) * Math.Sqrt(V2.x ^ 2 + V2.y ^ 2 + V2.z ^ 2)))
+
+        ' Return Distance in nautical Miles
+
+        Dim vl = AngleBetw * EarthRadius
+
+        Dim diff As Double = dist - vl
+
+        Return AngleBetw * EarthRadius '* 1.0015
+    End Function
+
     Public Function GetRadialCoordinates(ByVal CenterPoint As DoublePointStruct, ByVal Alpha As Double, ByVal Distance_Nm As Double, Optional exact_whichNeedsIterating As Boolean = False) As DoublePointStruct
 
 

@@ -353,7 +353,7 @@ Module Module1
             Dim lighte As Boolean
 
 
-                For Each cli In clf
+            For Each cli In clf
 
                 If cli.origin <> "ifrSec" Then 'debug
 
@@ -434,7 +434,7 @@ Module Module1
                     ffa.DataRow("height") = hightValHigher
                     ffa.DataRow("origin") = clf(segmentId).origin
                     ffa.DataRow("marked") = clf(segmentId).marked
-                    ffa.DataRow("_nonIcao") = clf(segmentId)._nonIcaoMarking
+
                     ffa.DataRow("elevation") = elevValHigher + hightValHigher
 
                     ffa.DataRow.AcceptChanges()
@@ -466,6 +466,9 @@ Module Module1
 
                         Console.WriteLine("write part file: " & lineShCount & " finished")
 
+                        GC.Collect()
+
+
                     Catch ex As Exception
                         Console.WriteLine("write part file: " & ex.Message & " ERROR")
                     End Try
@@ -474,28 +477,32 @@ Module Module1
 
                 ' rega special rope markings
                 ' this is for powerline masts
-                If clf(0).type.ToUpper = "MAST" And clf(0)._linkType.ToUpper = "CABLE" And clf(0)._nonIcaoMarking = False And clf(0).marked = False And clf(0).origin = "bazl" Then
+                If clf(0)._linkType.ToUpper = "CABLE" And clf(0).origin = "bazl" And clf(0).remark = "HL" Then
                     For Each point In listCl
                         Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
                         fff.DataRow("type") = "t"
                         fff.DataRow("elevation") = -10000
                         fff.DataRow.AcceptChanges()
+                        Console.WriteLine("rega special: " & "T")
                     Next
                 End If
-                If clf(0)._nonIcaoMarking And clf(0)._linkType.ToUpper = "CABLE" Then
+                If clf(0)._linkType.ToUpper = "CABLE" And clf(0).origin = "bazl" And (clf(0).remark = "OEK" Or clf(0).remark = "OGK") Then
                     For Each point In listCl
                         Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
                         fff.DataRow("type") = "triangle"
                         fff.DataRow("elevation") = -10000
                         fff.DataRow.AcceptChanges()
+
+                        Console.WriteLine("rega special: " & "Triangle")
                     Next
                 End If
-                If clf(0).marked And clf(0)._linkType.ToUpper = "CABLE" Then
+                If clf(0)._linkType.ToUpper = "CABLE" And clf(0).origin = "bazl" And clf(0).remark = "OGM" Then
                     For Each point In listCl
                         Dim fff As IFeature = _regaRopeMarkings.AddFeature(New Point(point))
                         fff.DataRow("type") = "point"
                         fff.DataRow("elevation") = -10000
                         fff.DataRow.AcceptChanges()
+                        Console.WriteLine("rega special: " & "O")
                     Next
                 End If
             End If
@@ -645,11 +652,12 @@ Module Module1
         Dim id As String
         Dim type As String
         Dim _linkType As String
-        Dim _nonIcaoMarking As Boolean
+
         Dim description As String
         Dim name As String
         Dim markingText As String
         Dim marked As Boolean
+        Dim remark As String
         Dim height As Long
         Dim lighted As Boolean
         Dim heightUnit As String
@@ -765,6 +773,7 @@ up:
                                                     el.heightUnit = item.heightUnit
                                                     el.elevation = item.elevationValue
                                                     el._linkType = item.linkType
+                                                    el.remark = item.remark
 
 
 
@@ -794,6 +803,7 @@ up:
                                                 el2.lighted = item2.lighted
                                                 el2._linkType = item2.linkType
                                                 el2.elevation = item2.elevationValue
+                                                el2.remark = item2.remark
                                                 groupObstacles.Add(el2)
 
 
@@ -847,6 +857,7 @@ up:
                             el2.height = item.heightValue
                             el2.heightUnit = item.heightUnit
                             el2.lighted = item.lighted
+                            el2.remark = item.remark
                             el2._linkType = item.linkType
                             groupObstacles.Add(el2)
 
@@ -904,16 +915,14 @@ up:
                         el.description = item.groupDescription
                         el.lighted = item.lighted
                         el.marked = item.marked
+                        el.remark = item.remark
                         el.elevation = item.elevationValue
                         el._linkType = item.linkType
 
-                        ' rega special
-                        If item.markingDescription.ToLower.Contains("cable") And item.markingDescription.ToLower.Contains("warn") Then
-                            el._nonIcaoMarking = True
-
-
-
-                        End If
+                        '' rega special
+                        'If item.markingDescription.ToLower.Contains("cable") And item.markingDescription.ToLower.Contains("warn") Then
+                        '    el._nonIcaoMarking = True
+                        'End If
 
                         lineF.Add(el)
 
@@ -960,6 +969,7 @@ up:
                                             el2.lighted = item2.lighted
                                             el2.height = item2.heightValue
                                             el2.elevation = item2.elevationValue
+                                            el2.remark = item2.remark
 
                                             el2.marked = item2.marked
                                             el2._linkType = item2.linkType
@@ -1027,6 +1037,7 @@ up:
         Dim validUntil As Date
         Dim effectiveFrom As Date
         Dim origin As String
+        Dim remark As String
         Dim _used As Boolean
     End Structure
 
@@ -1076,6 +1087,7 @@ up:
 
                     newRow.groupDescription = getValue(CurrentRecord, "txtGroupName")
                     newRow.name = getValue(CurrentRecord, "txtName")
+                    newRow.remark = getValue(CurrentRecord, "txtRmk")
                     newRow.type = getValue(CurrentRecord, "codeType")
 
                     newRow.lighted = getValue(CurrentRecord, "codeLgt").ToString.ToUpper = "Y".ToString.ToUpper
@@ -1107,7 +1119,7 @@ up:
                     End Try
                     newRow.defaultHeightFlag = getValue(CurrentRecord, "defaultHeightFlag").ToString.ToUpper = "Y".ToString.ToUpper
                     Try
-                        If getValue(CurrentRecord, "codeHgtAccuracy") <> "" Then newRow.verticalPrecision = getValue(CurrentRecord, "codeHgtAccuracy")
+                        If getValue(CurrentRecord, "codeHgtAccuracy") <> "" Then If getValue(CurrentRecord, "codeHgtAccuracy") <> "Y" Then newRow.verticalPrecision = getValue(CurrentRecord, "codeHgtAccuracy")
                     Catch ex As Exception
                         Console.WriteLine("ERR: cant read: verticalPrecision")
                     End Try
@@ -1154,7 +1166,7 @@ up:
 
 
                     Else
-                            Console.WriteLine("WARN: item excluded")
+                        Console.WriteLine("WARN: item excluded")
                     End If
 
                     ' testwise

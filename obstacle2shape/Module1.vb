@@ -360,6 +360,8 @@ Module Module1
         file.WriteLine("[Appearance]")
 
         ' labels with elevation value
+
+        file.WriteLine("FeatureClass=allPoints_labelElev*,type=ANTENNA,origin!=osm_all,309")
         file.WriteLine("FeatureClass=allPoints_labelElev*,type=CHIMNEY,origin!=osm_all,310") ' OAH
         file.WriteLine("FeatureClass=allPoints_labelElev*,type=TOWER,origin!=osm_all,311") ' OEF
         file.WriteLine("FeatureClass=allPoints_labelElev*,type=WINDTURBINE,origin!=osm_all,312") ' OEI
@@ -370,6 +372,7 @@ Module Module1
 
 
         ' labels with full value
+        file.WriteLine("FeatureClass=allPoints_labelFull*,type=ANTENNA,origin!=osm_all,329")
         file.WriteLine("FeatureClass=allPoints_labelFull*,type=CHIMNEY,origin!=osm_all,330") ' OAH
         file.WriteLine("FeatureClass=allPoints_labelFull*,type=TOWER,origin!=osm_all,331") ' OEF
         file.WriteLine("FeatureClass=allPoints_labelFull*,type=WINDTURBINE,origin!=osm_all,332") ' OEI

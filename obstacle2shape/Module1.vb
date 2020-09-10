@@ -169,8 +169,8 @@ Module Module1
                 ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
                 ffa.DataRow("description") = cli.description
                 ffa.DataRow("markingText") = cli.markingText
-                ffa.DataRow("label_full") = cli.elevation + cli.height & "'" & " (" & cli.height & "' AGL)"
-                ffa.DataRow("label_elev") = cli.elevation + cli.height & "'"
+                ffa.DataRow("label_full") = cli.elevation + cli.height & "(" & cli.height & ")"
+                ffa.DataRow("label_elev") = cli.elevation + cli.height
                 ffa.DataRow("height") = cli.height
                 ffa.DataRow("origin") = cli.origin
                 ffa.DataRow("lighted") = cli.lighted
@@ -303,7 +303,7 @@ Module Module1
                     ffa.DataRow("markingText") = clf(segmentId).markingText
                     ffa.DataRow("lighted") = clf(segmentId).lighted
                     ffa.DataRow("label") = "max " & maxHei & clf(segmentId).heightUnit & " " & clf(segmentId).description
-                    ffa.DataRow("height") = hightValHigher & " (" & elevValHigher + hightValHigher & ")"
+                    ffa.DataRow("height") = hightValHigher & "(" & elevValHigher + hightValHigher & ")"
                     ffa.DataRow("origin") = clf(segmentId).origin
                     ffa.DataRow("marked") = clf(segmentId).marked
 

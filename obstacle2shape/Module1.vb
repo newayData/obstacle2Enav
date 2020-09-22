@@ -119,10 +119,27 @@ Module Module1
             rr.DataRow("markingText") = cli.markingText
             rr.DataRow("origin") = cli.origin
             rr.DataRow("lighted") = cli.lighted
+
+
+
+
             rr.DataRow("label") = "max " & cli.height & cli.heightUnit & " " & cli.description
-            rr.DataRow("height") = cli.height & " (" & cli.elevation + cli.height & ")"
+
             rr.DataRow("marked") = cli.marked
-            rr.DataRow("elevation") = cli.elevation + cli.height
+
+            ' handle unit:
+            ' label with no unit
+            If cli.heightUnit = "M" Then
+                rr.DataRow("height") = Math.Round(cli.height * 3.28084) & " (" & Math.Round((cli.elevation + cli.height) * 3.28084) & ")"
+            Else
+                rr.DataRow("height") = cli.height & " (" & cli.elevation + cli.height & ")"
+            End If
+            If cli.heightUnit = "FT" Then
+                rr.DataRow("elevation") = (cli.elevation + cli.height) / 3.28084
+            Else
+                rr.DataRow("elevation") = (cli.elevation + cli.height)
+            End If
+
 
 
             If cli.height > 150 Then
@@ -169,13 +186,34 @@ Module Module1
                 ffa.DataRow("_linktype") = cli._linkType.ToString.ToLower
                 ffa.DataRow("description") = cli.description
                 ffa.DataRow("markingText") = cli.markingText
-                ffa.DataRow("label_full") = cli.elevation + cli.height & "(" & cli.height & ")"
-                ffa.DataRow("label_elev") = cli.elevation + cli.height
+
+
+
+                If cli.heightUnit = "M" Then
+                    ffa.DataRow("label_full") = Math.Round((cli.elevation + cli.height) * 3.28084) & "(" & Math.Round(cli.height * 3.28084) & ")"
+                    ffa.DataRow("label_elev") = Math.Round((cli.elevation + cli.height) * 3.28084)
+                Else
+                    ffa.DataRow("label_full") = Math.Round((cli.elevation + cli.height)) & "(" & Math.Round(cli.height) & ")"
+                    ffa.DataRow("label_elev") = Math.Round((cli.elevation + cli.height))
+                End If
+
+
+                If cli.heightUnit = "FT" Then
+                    ffa.DataRow("elevation") = (cli.elevation + cli.height) / 3.28084
+                Else
+                    ffa.DataRow("elevation") = (cli.elevation + cli.height)
+                End If
+
+
+
+
+
+
                 ffa.DataRow("height") = cli.height
                 ffa.DataRow("origin") = cli.origin
                 ffa.DataRow("lighted") = cli.lighted
                 ffa.DataRow("marked") = cli.marked
-                ffa.DataRow("elevation") = cli.elevation + cli.height
+
 
                 If cli.height > 150 Then
                     ffa.DataRow("_veryHigh") = "True"
@@ -307,7 +345,12 @@ Module Module1
                     ffa.DataRow("origin") = clf(segmentId).origin
                     ffa.DataRow("marked") = clf(segmentId).marked
 
-                    ffa.DataRow("elevation") = elevValHigher + hightValHigher
+                    If clf(segmentId).heightUnit = "FT" Then
+                        ffa.DataRow("elevation") = (elevValHigher + hightValHigher) / 3.28084
+                    Else
+                        ffa.DataRow("elevation") = (elevValHigher + hightValHigher)
+                    End If
+
 
                     ffa.DataRow.AcceptChanges()
                 Next

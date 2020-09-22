@@ -129,12 +129,12 @@ Module Module1
 
             ' handle unit:
             ' label with no unit
-            If cli.heightUnit = "M" Then
+            If cli.heightUnit.ToUpper = "M" Then
                 rr.DataRow("height") = Math.Round(cli.height * 3.28084) & " (" & Math.Round((cli.elevation + cli.height) * 3.28084) & ")"
             Else
                 rr.DataRow("height") = cli.height & " (" & cli.elevation + cli.height & ")"
             End If
-            If cli.heightUnit = "FT" Then
+            If cli.heightUnit.ToUpper = "FT" Then
                 rr.DataRow("elevation") = (cli.elevation + cli.height) / 3.28084
             Else
                 rr.DataRow("elevation") = (cli.elevation + cli.height)
@@ -189,7 +189,7 @@ Module Module1
 
 
 
-                If cli.heightUnit = "M" Then
+                If cli.heightUnit.ToUpper = "M" Then
                     ffa.DataRow("label_full") = Math.Round((cli.elevation + cli.height) * 3.28084) & "(" & Math.Round(cli.height * 3.28084) & ")"
                     ffa.DataRow("label_elev") = Math.Round((cli.elevation + cli.height) * 3.28084)
                 Else
@@ -902,7 +902,7 @@ up:
                     End Try
                     newRow.defaultHeightFlag = getValue(CurrentRecord, "defaultHeightFlag").ToString.ToUpper = "Y".ToString.ToUpper
                     Try
-                        If getValue(CurrentRecord, "codeHgtAccuracy") <> "" Then newRow.verticalPrecision = getValue(CurrentRecord, "codeHgtAccuracy")
+                        'If getValue(CurrentRecord, "codeHgtAccuracy") <> "" Then newRow.verticalPrecision = getValue(CurrentRecord, "codeHgtAccuracy")
                     Catch ex As Exception
                         Console.WriteLine("ERR: cant read: verticalPrecision")
                     End Try
@@ -927,8 +927,8 @@ up:
 
                     newRow.linkType = getValue(CurrentRecord, "codeLinkType")
                     Try
-                        If getValue(CurrentRecord, "datetimeValidTil") <> "" Then newRow.validUntil = getValue(CurrentRecord, "datetimeValidTil")
-                        If getValue(CurrentRecord, "datetimeValidWef") <> "" Then newRow.effectiveFrom = getValue(CurrentRecord, "datetimeValidWef")
+                        If getValue(CurrentRecord, "datetimeValidTil") <> "" Then If getValue(CurrentRecord, "datetimeValidTil") <> "0" Then newRow.validUntil = getValue(CurrentRecord, "datetimeValidTil")
+                        If getValue(CurrentRecord, "datetimeValidWef") <> "" Then If getValue(CurrentRecord, "datetimeValidTil") <> "0" Then newRow.effectiveFrom = getValue(CurrentRecord, "datetimeValidWef")
                     Catch ex As Exception
                         Console.WriteLine("ERR: cant read: linkType")
                     End Try
@@ -961,10 +961,6 @@ up:
                         kCntr += 1
                     End If
 
-                    ' fix meter units
-                    If newRow.heightUnit.ToUpper = "M" Then
-                        newRow.heightValue /= 0.3048
-                    End If
 
                 End If
 
@@ -982,19 +978,28 @@ up:
     Function getValue(CurrentRecord As Object, col As String)
 
         ' find idx
-        Dim fieldFound As Boolean = False
-        For i As Short = 0 To headerline.Length - 1
-            If headerline(i) = col Then
-                fieldFound = True
 
-                Return CurrentRecord(i)
 
+        If headerline.Contains(col) Then
+
+
+
+            Dim fieldFound As Boolean = False
+            For i As Short = 0 To headerline.Length - 1
+                If headerline(i) = col Then
+                    fieldFound = True
+
+                    If CurrentRecord(i) = "" Then CurrentRecord(i) = 0
+
+                    Return CurrentRecord(i)
+
+                End If
+            Next
+
+            If fieldFound = False Then
+                Console.WriteLine("ERR: field not found! " & col)
+                Console.ReadKey()
             End If
-        Next
-
-        If fieldFound = False Then
-            Console.WriteLine("ERR: field not found! " & col)
-            Console.ReadKey()
         End If
 
         Return ""

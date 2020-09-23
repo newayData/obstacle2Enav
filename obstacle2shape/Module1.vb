@@ -980,16 +980,16 @@ up:
         ' find idx
 
 
-        If headerline.Contains(col) Then
+        'If headerline.Contains(col) Then
 
 
 
-            Dim fieldFound As Boolean = False
+        Dim fieldFound As Boolean = False
             For i As Short = 0 To headerline.Length - 1
                 If headerline(i) = col Then
                     fieldFound = True
 
-                    If CurrentRecord(i) = "" Then CurrentRecord(i) = 0
+
 
                     Return CurrentRecord(i)
 
@@ -1000,7 +1000,7 @@ up:
                 Console.WriteLine("ERR: field not found! " & col)
                 Console.ReadKey()
             End If
-        End If
+        'End If
 
         Return ""
     End Function

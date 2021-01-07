@@ -65,7 +65,11 @@ Module Module1
 
     Sub createShape()
 
+        ' delete old output
+        System.IO.Directory.Delete("out\", True)
+
         Dim lineShCount As Short = 0
+
 
 
         'rega special IFR APP Sectors
